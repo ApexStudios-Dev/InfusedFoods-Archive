@@ -46,6 +46,7 @@ public final class InfusionStationContainerScreen extends ContainerScreen<Infusi
 
 		renderSlotBackground(pose, InfusionStationInventory.SLOT_BLAZE, 240, 0);
 		renderSlotBackground(pose, InfusionStationInventory.SLOT_POTION, 240, 16);
+		renderSlotBackground(pose, InfusionStationInventory.SLOT_FOOD, 240, 33);
 
 		renderInfusionFluid(pose);
 		renderInfusionProgress(pose);
