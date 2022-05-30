@@ -47,7 +47,7 @@ public final class PFElements
 										.modelFile(provider
 												.models()
 												.getBuilder(ctx.getName())
-												.texture("particle", INFUSION_STATION_BLOCK_TEXTURE.getNamespace() + ":models/infusion_station")
+												.texture("particle", "minecraft:block/stone")
 										)
 									.build()
 							)
