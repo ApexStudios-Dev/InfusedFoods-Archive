@@ -9,8 +9,10 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.vector.Vector3f;
 
+import xyz.apex.forge.potionfoods.block.InfusionStationBlock;
 import xyz.apex.forge.potionfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.potionfoods.block.entity.InfusionStationInventory;
 import xyz.apex.forge.potionfoods.client.renderer.model.InfusionStationModel;
@@ -42,10 +44,10 @@ public final class InfusionStationBlockEntityRenderer extends TileEntityRenderer
 		pose.pushPose();
 
 		BlockState blockState = blockEntity.getBlockState();
-		// Direction facing = blockState.getValue(WidowBloomBlock.FACING);
+		Direction facing = blockState.getValue(InfusionStationBlock.FACING);
 
 		pose.translate(.5D, .5D, .5D);
-		// pose.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
+		pose.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
 		pose.mulPose(Vector3f.XP.rotationDegrees(180F));
 		pose.translate(0D, -1D, 0D);
 
