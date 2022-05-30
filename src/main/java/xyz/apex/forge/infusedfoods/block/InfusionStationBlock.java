@@ -15,6 +15,7 @@ import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.PathType;
 import net.minecraft.potion.Effect;
 import net.minecraft.state.BooleanProperty;
@@ -48,6 +49,7 @@ import xyz.apex.forge.infusedfoods.network.PacketSyncInfusionData;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public final class InfusionStationBlock extends ContainerBlock<InfusionStationBlockEntity> implements IWaterLoggable
 {
@@ -66,6 +68,21 @@ public final class InfusionStationBlock extends ContainerBlock<InfusionStationBl
 		super(properties);
 
 		registerDefaultState(defaultBlockState().setValue(WATERLOGGED, false).setValue(FACING, Direction.NORTH));
+	}
+
+	@Override
+	public void animateTick(BlockState blockState, World level, BlockPos pos, Random rng)
+	{
+		if(!blockState.getValue(WATERLOGGED))
+		{
+			Direction facing = blockState.getValue(FACING).getClockWise();
+
+			double x = (double) pos.getX() + .4D + (double) rng.nextFloat() * .2D + (facing.getStepX() * .4D);
+			double y = (double) pos.getY() + .7D + (double) rng.nextFloat() * .3D;
+			double z = (double) pos.getZ() + .4D + (double) rng.nextFloat() * .2D + (facing.getStepZ() * .4D);
+
+			level.addParticle(ParticleTypes.SMOKE, x, y, z, 0D, 0D, 0D);
+		}
 	}
 
 	@Override

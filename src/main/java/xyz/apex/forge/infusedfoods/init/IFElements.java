@@ -79,6 +79,9 @@ public final class IFElements
 			.sound(SoundType.METAL)
 			.harvestTool(ToolType.PICKAXE)
 			.noOcclusion()
+			.requiresCorrectToolForDrops()
+			.strength(.5F)
+			.lightLevel(blockState -> 1)
 
 			.addRenderType(() -> RenderType::cutout)
 
