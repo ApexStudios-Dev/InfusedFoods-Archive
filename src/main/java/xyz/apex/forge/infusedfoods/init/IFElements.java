@@ -1,8 +1,11 @@
 package xyz.apex.forge.infusedfoods.init;
 
+import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.data.ShapedRecipeBuilder;
 import net.minecraft.data.loot.BlockLootTables;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -17,6 +20,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.client.model.generators.ModelBuilder;
 import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.ToolType;
 import net.minecraftforge.fml.DatagenModLoader;
 
@@ -74,6 +78,15 @@ public final class IFElements
 							)
 					))
 			))
+			.recipe((ctx, provider) -> ShapedRecipeBuilder
+					.shaped(ctx.get(), 1)
+					.define('B', Tags.Items.RODS_BLAZE)
+					.define('#', Tags.Items.STONE)
+					.pattern(" B ")
+					.pattern("###")
+					.unlockedBy("has_blaze_rod", RegistrateRecipeProvider.hasItem(Tags.Items.RODS_BLAZE))
+					.save(provider, ctx.getId())
+			)
 
 			.initialProperties(Material.METAL)
 			.sound(SoundType.METAL)
