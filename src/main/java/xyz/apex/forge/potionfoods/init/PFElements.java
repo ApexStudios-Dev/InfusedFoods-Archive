@@ -12,10 +12,12 @@ import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.client.model.generators.ModelBuilder;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.common.ToolType;
+import net.minecraftforge.fml.DatagenModLoader;
 
 import xyz.apex.forge.potionfoods.block.InfusionStationBlock;
 import xyz.apex.forge.potionfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.potionfoods.block.entity.InfusionStationInventory;
+import xyz.apex.forge.potionfoods.client.PFItemStackBlockEntityRenderer;
 import xyz.apex.forge.potionfoods.client.renderer.InfusionStationBlockEntityRenderer;
 import xyz.apex.forge.potionfoods.client.screen.InfusionStationContainerScreen;
 import xyz.apex.forge.potionfoods.container.InfusionStationContainer;
@@ -62,6 +64,7 @@ public final class PFElements
 			.addRenderType(() -> RenderType::cutout)
 
 			.item()
+				.setISTER(() -> DatagenModLoader.isRunningDataGen() ? () -> null : PFItemStackBlockEntityRenderer::new)
 				.model((ctx, provider) -> {
 							ResourceLocation id = ctx.getId();
 							ModelFile.UncheckedModelFile builtInEntity = new ModelFile.UncheckedModelFile("minecraft:builtin/entity");
@@ -70,44 +73,44 @@ public final class PFElements
 						        .parent(builtInEntity)
 								.transforms()
 									.transform(ModelBuilder.Perspective.THIRDPERSON_RIGHT)
-										.rotation(75F, 45F, 0F)
-										.translation(0F, 3F, 4F)
-										.scale(.375F, .375F, .375F)
+										.rotation(0F, 0F, 0F)
+										.translation(0F, 0F, 0F)
+										.scale(1F, 1F, 1F)
 									.end()
 									.transform(ModelBuilder.Perspective.THIRDPERSON_LEFT)
-										.rotation(75F, 45F, 0F)
-										.translation(0F, 3F, 4F)
-										.scale(.375F, .375F, .375F)
+										.rotation(0F, 0F, 0F)
+										.translation(0F, 0F, 0F)
+										.scale(1F, 1F, 1F)
 									.end()
 									.transform(ModelBuilder.Perspective.FIRSTPERSON_RIGHT)
-										.rotation(0F, 135F, 0F)
-										.translation(0F, 7F, 0F)
-										.scale(.4F, .4F, .4F)
+										.rotation(0F, 0F, 0F)
+										.translation(0F, 0F, 0F)
+										.scale(1F, 1F, 1F)
 									.end()
 									.transform(ModelBuilder.Perspective.FIRSTPERSON_LEFT)
-										.rotation(0F, 135F, 0F)
-										.translation(0F, 7F, 0F)
-										.scale(.4F, .4F, .4F)
+										.rotation(0F, 0F, 0F)
+										.translation(0F, 0F, 0F)
+										.scale(1F, 1F, 1F)
 									.end()
 									.transform(ModelBuilder.Perspective.HEAD)
 										.rotation(0F, 0F, 0F)
-										.translation(0F, 30F, 0F)
+										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
 									.end()
 									.transform(ModelBuilder.Perspective.GROUND)
 										.rotation(0F, 0F, 0F)
-										.translation(0F, 6F, 0F)
-										.scale(.25F, .25F, .25F)
+										.translation(0F, 0F, 0F)
+										.scale(1F, 1F, 1F)
 									.end()
 									.transform(ModelBuilder.Perspective.FIXED)
-										.rotation(-90F, 0F, 0F)
-										.translation(0F, 0F, -23F)
+										.rotation(0F, 0F, 0F)
+										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
 									.end()
 									.transform(ModelBuilder.Perspective.GUI)
-										.rotation(30F, -135F, 0F)
-										.translation(0F, 3F, 0F)
-										.scale(.5F, .5F, .5F)
+										.rotation(0F, 0F, 0F)
+										.translation(0F, 0F, 0F)
+										.scale(1F, 1F, 1F)
 									.end()
 								.end();
 				})

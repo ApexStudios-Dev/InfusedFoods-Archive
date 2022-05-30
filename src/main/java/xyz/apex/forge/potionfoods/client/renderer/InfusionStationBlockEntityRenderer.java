@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.math.vector.Vector3f;
@@ -40,20 +41,87 @@ public final class InfusionStationBlockEntityRenderer extends TileEntityRenderer
 		model.setUpForRender(hasPotion, hasBottle, hasFluid, hasFood, color);
 		pose.pushPose();
 
-		if(blockEntity.hasLevel())
-		{
-			BlockState blockState = blockEntity.getBlockState();
-			// Direction facing = blockState.getValue(WidowBloomBlock.FACING);
+		BlockState blockState = blockEntity.getBlockState();
+		// Direction facing = blockState.getValue(WidowBloomBlock.FACING);
 
-			pose.translate(.5D, .5D, .5D);
-			// pose.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
-			pose.mulPose(Vector3f.XP.rotationDegrees(180F));
-			pose.translate(0D, -1D, 0D);
-		}
-		else
+		pose.translate(.5D, .5D, .5D);
+		// pose.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
+		pose.mulPose(Vector3f.XP.rotationDegrees(180F));
+		pose.translate(0D, -1D, 0D);
+
+		RenderType renderType = RenderType.entityTranslucentCull(PFElements.INFUSION_STATION_BLOCK_TEXTURE);
+		IVertexBuilder modelBuffer = buffer.getBuffer(renderType);
+		model.renderToBuffer(pose, modelBuffer, combinedLight, combinedOverlay, 1F, 1F, 1F, 1F);
+
+		pose.pushPose();
+		pose.translate(0D, 1D, 0D);
+
+		renderType = RenderType.entityTranslucentCull(PFElements.INFUSION_STATION_BLOCK_TEXTURE_TINT);
+		modelBuffer = buffer.getBuffer(renderType);
+		model.renderToBufferTint(pose, modelBuffer, combinedLight, combinedOverlay, 1F, 1F, 1F, 1F, true);
+
+		pose.popPose();
+
+		pose.popPose();
+	}
+
+	public void renderForGUI(InfusionStationBlockEntity blockEntity, float partialTick, MatrixStack pose, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay, ItemCameraTransforms.TransformType transformType)
+	{
+		if(transformType == ItemCameraTransforms.TransformType.NONE)
+			return;
+
+		model.setUpForRender(true, true, true, true, 0x720F0F);
+		pose.pushPose();
+
+		if(transformType == ItemCameraTransforms.TransformType.GUI)
 		{
-			pose.translate(.5D, .5D, .5D);
+			pose.mulPose(Vector3f.XP.rotationDegrees(30F));
+			pose.mulPose(Vector3f.YP.rotationDegrees(225F));
 			pose.mulPose(Vector3f.ZP.rotationDegrees(180F));
+			pose.translate(.55D, -1.5D, -.15D);
+			pose.scale(.85F, .95F, .9F);
+		}
+		else if(transformType == ItemCameraTransforms.TransformType.HEAD)
+		{
+			pose.mulPose(Vector3f.ZP.rotationDegrees(180F));
+			pose.translate(-.5D, -2.45D, .5D);
+		}
+		else if(transformType == ItemCameraTransforms.TransformType.GROUND)
+		{
+			pose.mulPose(Vector3f.ZP.rotationDegrees(180F));
+			pose.translate(-.5D, -1D, .5D);
+			pose.scale(.45F, .45F, .45F);
+		}
+		else if(transformType == ItemCameraTransforms.TransformType.FIXED)
+		{
+			pose.mulPose(Vector3f.ZP.rotationDegrees(180F));
+			pose.translate(-.5D, -1.65D, .5D);
+		}
+		else if(transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND)
+		{
+			pose.mulPose(Vector3f.XP.rotationDegrees(180F));
+			pose.translate(.25D, -1D, -.25D);
+			pose.scale(.45F, .45F, .45F);
+			pose.mulPose(Vector3f.YN.rotationDegrees(25F));
+		}
+		else if(transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND)
+		{
+			pose.mulPose(Vector3f.ZP.rotationDegrees(180F));
+			pose.translate(-.6D, -1D, .25D);
+			pose.scale(.45F, .45F, .45F);
+			pose.mulPose(Vector3f.YP.rotationDegrees(25F));
+		}
+		else if(transformType == ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND)
+		{
+			pose.mulPose(Vector3f.XP.rotationDegrees(180F));
+			pose.translate(.5D, -1D, -.4D);
+			pose.scale(.45F, .45F, .45F);
+		}
+		else if(transformType == ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND)
+		{
+			pose.mulPose(Vector3f.ZP.rotationDegrees(180F));
+			pose.translate(-.5D, -1D, .4D);
+			pose.scale(.45F, .45F, .45F);
 		}
 
 		RenderType renderType = RenderType.entityTranslucentCull(PFElements.INFUSION_STATION_BLOCK_TEXTURE);
@@ -62,9 +130,11 @@ public final class InfusionStationBlockEntityRenderer extends TileEntityRenderer
 
 		pose.pushPose();
 		pose.translate(0D, 1D, 0D);
+
 		renderType = RenderType.entityTranslucentCull(PFElements.INFUSION_STATION_BLOCK_TEXTURE_TINT);
 		modelBuffer = buffer.getBuffer(renderType);
 		model.renderToBufferTint(pose, modelBuffer, combinedLight, combinedOverlay, 1F, 1F, 1F, 1F, true);
+
 		pose.popPose();
 
 		pose.popPose();
