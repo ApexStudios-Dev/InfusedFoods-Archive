@@ -29,17 +29,15 @@ public final class InfusionStationBlockEntityRenderer extends TileEntityRenderer
 	@Override
 	public void render(InfusionStationBlockEntity blockEntity, float partialTick, MatrixStack pose, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay)
 	{
-		RenderType renderType = RenderType.entityTranslucentCull(PFElements.INFUSION_STATION_BLOCK_TEXTURE);
-		IVertexBuilder modelBuffer = buffer.getBuffer(renderType);
-
 		InfusionStationInventory inventory = blockEntity.getItemHandler();
 		boolean hasBottle = !inventory.getBottle().isEmpty();
 		boolean hasPotion = !inventory.getPotion().isEmpty();
 		boolean hasFluid = inventory.hasInfusionFluid();
 		boolean hasFood = !inventory.getFood().isEmpty();
 
-		model.setUpForRender(hasPotion, hasBottle, hasFluid, hasFood);
+		int color = inventory.getInfusionFluid().getColor();
 
+		model.setUpForRender(hasPotion, hasBottle, hasFluid, hasFood, color);
 		pose.pushPose();
 
 		if(blockEntity.hasLevel())
@@ -58,7 +56,17 @@ public final class InfusionStationBlockEntityRenderer extends TileEntityRenderer
 			pose.mulPose(Vector3f.ZP.rotationDegrees(180F));
 		}
 
+		RenderType renderType = RenderType.entityTranslucentCull(PFElements.INFUSION_STATION_BLOCK_TEXTURE);
+		IVertexBuilder modelBuffer = buffer.getBuffer(renderType);
 		model.renderToBuffer(pose, modelBuffer, combinedLight, combinedOverlay, 1F, 1F, 1F, 1F);
+
+		pose.pushPose();
+		pose.translate(0D, 1D, 0D);
+		renderType = RenderType.entityTranslucentCull(PFElements.INFUSION_STATION_BLOCK_TEXTURE_TINT);
+		modelBuffer = buffer.getBuffer(renderType);
+		model.renderToBufferTint(pose, modelBuffer, combinedLight, combinedOverlay, 1F, 1F, 1F, 1F, true);
+		pose.popPose();
+
 		pose.popPose();
 	}
 }
