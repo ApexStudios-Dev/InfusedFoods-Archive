@@ -165,10 +165,10 @@ public final class InfusionStationContainerScreen extends ContainerScreen<Infusi
 
 			getMinecraft().getTextureManager().bind(PFElements.INFUSION_STATION_CONTAINER_SCREEN_TEXTURE);
 
-			// float a = (float)(color >> 24 & 255) / 255F;
-			float r = (float)(color >> 16 & 255) / 255F;
-			float g = (float)(color >> 8 & 255) / 255F;
-			float b = (float)(color & 255) / 255F;
+			// float a = (float) (color >> 24 & 255) / 255F;
+			float r = (float) (color >> 16 & 255) / 255F;
+			float g = (float) (color >> 8 & 255) / 255F;
+			float b = (float) (color & 255) / 255F;
 
 			RenderSystem.color4f(r, g, b, 1F);
 

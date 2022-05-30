@@ -32,6 +32,7 @@ public final class PFElements
 
 	public static final ResourceLocation INFUSION_STATION_CONTAINER_SCREEN_TEXTURE = REGISTRY.id("textures/gui/container/infusion_station.png");
 	public static final ResourceLocation INFUSION_STATION_BLOCK_TEXTURE = REGISTRY.id("textures/models/infusion_station.png");
+	public static final ResourceLocation INFUSION_STATION_BLOCK_TEXTURE_TINT = REGISTRY.id("textures/models/infusion_station_tint.png");
 
 	public static final BlockEntry<InfusionStationBlock> INFUSION_STATION_BLOCK = REGISTRY
 			.block("infusion_station", InfusionStationBlock::new)
