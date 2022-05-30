@@ -1,1 +1,1 @@
-# Potion Foods
+# Infused Foods

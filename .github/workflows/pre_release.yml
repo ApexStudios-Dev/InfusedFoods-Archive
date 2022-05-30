@@ -72,8 +72,8 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_PRE_RELEASE_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_PRE_RELEASE_WEBHOOK_TOKEN }}
           color: '#7A4DAF'
-          file: './build/libs/potionfoods-1.16.5-${{ steps.mod_version.outputs.value }}.jar'
-          message: "Early version of **Potion Foods** v**_${{ steps.mod_version.outputs.value }}_** (**Minecraft** **_1.16.5_**) is available."
+          file: './build/libs/infusedfoods-1.16.5-${{ steps.mod_version.outputs.value }}.jar'
+          message: "Early version of **Infused Foods** v**_${{ steps.mod_version.outputs.value }}_** (**Minecraft** **_1.16.5_**) is available."
 
       - name: Stop Gradle Deamons
         run: ./gradlew --stop
