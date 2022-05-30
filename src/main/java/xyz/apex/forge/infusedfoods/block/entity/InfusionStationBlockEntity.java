@@ -421,29 +421,19 @@ public final class InfusionStationBlockEntity extends BaseBlockEntity implements
 				Potion potion = PotionUtils.getPotion(potionStack);
 				List<EffectInstance> effects = potion.getEffects();
 
-				if(!effects.isEmpty())
+				if(effects.size() == 1)
 				{
 					EffectInstance effectInstance = effects.get(0);
 					inventory.incrementInfusionFluid(effectInstance);
 
 					if(inventory.hasInfusionFluid())
 					{
-						if(effects.size() - 1 <= 0)
-						{
-							inventory.setPotion(ItemStack.EMPTY);
+						inventory.setPotion(ItemStack.EMPTY);
 
-							if(bottleStack.isEmpty())
-								inventory.setBottle(Items.GLASS_BOTTLE.getDefaultInstance());
-							else
-								bottleStack.grow(1);
-						}
+						if(bottleStack.isEmpty())
+							inventory.setBottle(Items.GLASS_BOTTLE.getDefaultInstance());
 						else
-						{
-							effects = effects.subList(1, effects.size());
-							potion = new Potion(effects.toArray(new EffectInstance[0]));
-							potionStack = PotionUtils.setPotion(potionStack, potion);
-							inventory.setPotion(potionStack);
-						}
+							bottleStack.grow(1);
 
 						infuseTime = 0;
 						changed = true;

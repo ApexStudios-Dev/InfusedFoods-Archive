@@ -104,7 +104,7 @@ public final class InfusionStationInventory extends ItemStackHandler
 	{
 		if(slot == SLOT_POTION)
 		{
-			if(stack.getItem() == Items.POTION && !PotionUtils.getPotion(stack).getEffects().isEmpty())
+			if(stack.getItem() == Items.POTION && PotionUtils.getPotion(stack).getEffects().size() == 1)
 				return true;
 		}
 

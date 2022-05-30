@@ -24,6 +24,6 @@ public final class SlotInfusionPotion extends SlotItemHandler
 			return false;
 
 		Potion potion = PotionUtils.getPotion(stack);
-		return !potion.getEffects().isEmpty();
+		return potion.getEffects().size() == 1;
 	}
 }
