@@ -28,14 +28,14 @@ public final class InfusionStationInventory extends ItemStackHandler
 	public static final int SLOT_RESULT = 3;
 	public static final int SLOT_BOTTLE = 4;
 
-	private static final String NBT_INFUSION_FLUID = "InfusionFluid";
+	public static final String NBT_INFUSION_FLUID = "InfusionFluid";
 	private static final String NBT_EFFECT = "Effect";
 	private static final String NBT_AMOUNT = "Amount";
 	private static final String NBT_DURATION = "Duration";
 	private static final String NBT_AMPLIFIER = "Amplifier";
 
-	private InfusionFluid infusionFluid = InfusionFluid.EMPTY;
-	private final Runnable onFluidChanged;
+	InfusionFluid infusionFluid = InfusionFluid.EMPTY;
+	final Runnable onFluidChanged;
 
 	public InfusionStationInventory(Runnable onFluidChanged)
 	{

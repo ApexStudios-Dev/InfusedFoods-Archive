@@ -9,8 +9,11 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.vector.Vector3f;
+import net.minecraftforge.common.util.Constants;
 
 import xyz.apex.forge.infusedfoods.block.InfusionStationBlock;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
@@ -67,12 +70,32 @@ public final class InfusionStationBlockEntityRenderer extends TileEntityRenderer
 		pose.popPose();
 	}
 
-	public void renderForGUI(InfusionStationBlockEntity blockEntity, float partialTick, MatrixStack pose, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay, ItemCameraTransforms.TransformType transformType)
+	public void renderForGUI(ItemStack stack, InfusionStationBlockEntity blockEntity, float partialTick, MatrixStack pose, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay, ItemCameraTransforms.TransformType transformType)
 	{
 		if(transformType == ItemCameraTransforms.TransformType.NONE)
 			return;
 
-		model.setUpForRender(true, true, true, true, 0x720F0F);
+		boolean hasPotion = false;
+		int potionColor = 0x720F0F;
+
+		CompoundNBT stackTag = stack.getTag();
+
+		if(stackTag != null && stackTag.contains(InfusionStationBlockEntity.NBT_INVENTORY, Constants.NBT.TAG_COMPOUND))
+		{
+			CompoundNBT inventoryTag = stackTag.getCompound(InfusionStationBlockEntity.NBT_INVENTORY);
+
+			if(inventoryTag.contains(InfusionStationInventory.NBT_INFUSION_FLUID, Constants.NBT.TAG_COMPOUND))
+			{
+				CompoundNBT fluidTag = inventoryTag.getCompound(InfusionStationInventory.NBT_INFUSION_FLUID);
+				InfusionStationInventory.InfusionFluid fluid = new InfusionStationInventory.InfusionFluid(fluidTag);
+				hasPotion = !fluid.isEmpty();
+
+				if(hasPotion)
+					potionColor = fluid.getColor();
+			}
+		}
+
+		model.setUpForRender(hasPotion, hasPotion, hasPotion, true, potionColor);
 		pose.pushPose();
 
 		if(transformType == ItemCameraTransforms.TransformType.GUI)

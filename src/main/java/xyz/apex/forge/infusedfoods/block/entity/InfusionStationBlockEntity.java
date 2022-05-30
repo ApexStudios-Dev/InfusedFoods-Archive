@@ -103,6 +103,35 @@ public final class InfusionStationBlockEntity extends BaseBlockEntity implements
 		return itemHandlerCapability.orElseGet(this::createItemHandler);
 	}
 
+	public void loadFromItemStack(CompoundNBT tagCompound)
+	{
+		if(tagCompound.contains(NBT_BLAZE_FUEL, Constants.NBT.TAG_ANY_NUMERIC))
+		{
+			blazeFuel = tagCompound.getInt(NBT_BLAZE_FUEL);
+			setChanged();
+		}
+
+		if(tagCompound.contains(NBT_CUSTOM_NAME, Constants.NBT.TAG_STRING))
+		{
+			String customNameJson = tagCompound.getString(NBT_CUSTOM_NAME);
+			customName = ITextComponent.Serializer.fromJson(customNameJson);
+			setChanged();
+		}
+
+		if(tagCompound.contains(NBT_INVENTORY, Constants.NBT.TAG_COMPOUND))
+		{
+			inventory = getItemHandler();
+			CompoundNBT inventoryTag = tagCompound.getCompound(NBT_INVENTORY);
+
+			if(inventoryTag.contains(InfusionStationInventory.NBT_INFUSION_FLUID, Constants.NBT.TAG_COMPOUND))
+			{
+				CompoundNBT fluidTag = inventoryTag.getCompound(InfusionStationInventory.NBT_INFUSION_FLUID);
+				inventory.infusionFluid = new InfusionStationInventory.InfusionFluid(fluidTag);
+				inventory.onFluidChanged.run();
+			}
+		}
+	}
+
 	@Override
 	public Container createMenu(int windowId, PlayerInventory playerInventory, PlayerEntity player)
 	{

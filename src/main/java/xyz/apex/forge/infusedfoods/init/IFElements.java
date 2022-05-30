@@ -3,8 +3,14 @@ package xyz.apex.forge.infusedfoods.init;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.data.loot.BlockLootTables;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.loot.ConstantRange;
+import net.minecraft.loot.ItemLootEntry;
+import net.minecraft.loot.LootPool;
+import net.minecraft.loot.LootTable;
+import net.minecraft.loot.functions.CopyNbt;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.IntArray;
 import net.minecraft.util.ResourceLocation;
@@ -54,10 +60,23 @@ public final class IFElements
 									.build()
 							)
 			)
+			.loot((lootTables, block) -> lootTables.add(block, LootTable
+					.lootTable()
+					.withPool(BlockLootTables.applyExplosionCondition(block, LootPool
+							.lootPool()
+							.setRolls(ConstantRange.exactly(1))
+							.add(ItemLootEntry.lootTableItem(block))
+							.apply(CopyNbt
+									.copyData(CopyNbt.Source.BLOCK_ENTITY)
+									.copy(InfusionStationBlockEntity.NBT_BLAZE_FUEL, InfusionStationBlockEntity.NBT_BLAZE_FUEL)
+									.copy(InfusionStationBlockEntity.NBT_CUSTOM_NAME, InfusionStationBlockEntity.NBT_CUSTOM_NAME)
+									.copy(InfusionStationBlockEntity.NBT_INVENTORY + '.' + InfusionStationInventory.NBT_INFUSION_FLUID, InfusionStationBlockEntity.NBT_INVENTORY + '.' + InfusionStationInventory.NBT_INFUSION_FLUID)
+							)
+					))
+			))
 
 			.initialProperties(Material.METAL)
 			.sound(SoundType.METAL)
-			.requiresCorrectToolForDrops()
 			.harvestTool(ToolType.PICKAXE)
 			.noOcclusion()
 

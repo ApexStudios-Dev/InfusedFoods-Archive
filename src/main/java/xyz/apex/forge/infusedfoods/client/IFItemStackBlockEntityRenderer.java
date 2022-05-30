@@ -34,7 +34,7 @@ public final class IFItemStackBlockEntityRenderer extends ItemStackTileEntityRen
 		if(IFElements.INFUSION_STATION_BLOCK_ITEM.isInStack(stack))
 		{
 			InfusionStationBlockEntity blockEntity = this.infusionStationBlockEntity.get();
-			infusionStationBlockEntityRenderer.renderForGUI(blockEntity, partialTick, pose, buffer, light, overlay, transformType);
+			infusionStationBlockEntityRenderer.renderForGUI(stack, blockEntity, partialTick, pose, buffer, light, overlay, transformType);
 		}
 		else
 			super.renderByItem(stack, transformType, pose, buffer, light, overlay);
