@@ -25,6 +25,8 @@ public final class PFRegistry extends AbstractRegistrator<PFRegistry>
 
 		Validate.isTrue(ModLoadingContext.get().getActiveContainer().getModId().equals(PotionFoods.ID));
 		bootstrap = true;
+
+		PFElements.bootstrap();
 	}
 
 	public static PFRegistry getInstance()
