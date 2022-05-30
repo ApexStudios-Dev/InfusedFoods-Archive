@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.math.vector.Vector3f;
 
 import xyz.apex.forge.potionfoods.block.entity.InfusionStationBlockEntity;
+import xyz.apex.forge.potionfoods.block.entity.InfusionStationInventory;
 import xyz.apex.forge.potionfoods.client.renderer.model.InfusionStationModel;
 import xyz.apex.forge.potionfoods.init.PFElements;
 
@@ -28,8 +29,16 @@ public final class InfusionStationBlockEntityRenderer extends TileEntityRenderer
 	@Override
 	public void render(InfusionStationBlockEntity blockEntity, float partialTick, MatrixStack pose, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay)
 	{
-		RenderType renderType = model.renderType(PFElements.INFUSION_STATION_BLOCK_TEXTURE);
+		RenderType renderType = RenderType.entityTranslucentCull(PFElements.INFUSION_STATION_BLOCK_TEXTURE);
 		IVertexBuilder modelBuffer = buffer.getBuffer(renderType);
+
+		InfusionStationInventory inventory = blockEntity.getItemHandler();
+		boolean hasBottle = !inventory.getBottle().isEmpty();
+		boolean hasPotion = !inventory.getPotion().isEmpty();
+		boolean hasFluid = inventory.hasInfusionFluid();
+		boolean hasFood = !inventory.getFood().isEmpty();
+
+		model.setUpForRender(hasPotion, hasBottle, hasFluid, hasFood);
 
 		pose.pushPose();
 

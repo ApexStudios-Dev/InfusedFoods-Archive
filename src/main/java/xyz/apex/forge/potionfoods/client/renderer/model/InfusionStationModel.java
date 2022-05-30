@@ -13,6 +13,12 @@ import java.util.function.Function;
 public final class InfusionStationModel extends Model
 {
 	private final ModelRenderer infusionStation;
+	private final ModelRenderer base;
+	private final ModelRenderer blaze_rod;
+	private final ModelRenderer potion;
+	private final ModelRenderer spout;
+	private final ModelRenderer apple;
+	private final ModelRenderer appleLeaf;
 
 	public InfusionStationModel(Function<ResourceLocation, RenderType> renderTypeFunction)
 	{
@@ -23,20 +29,51 @@ public final class InfusionStationModel extends Model
 
 		infusionStation = new ModelRenderer(this);
 		infusionStation.setPos(0F, 16F, 0F);
-		infusionStation.texOffs(0, 0).addBox(-5F, 7F, -3F, 12F, 1F, 6F, 0F, false);
-		infusionStation.texOffs(14, 13).addBox(-7F, -6F, -1F, 2F, 14F, 2F, 0F, false);
-		infusionStation.texOffs(0, 22).addBox(-4F, 0F, 0F, 5F, 7F, 0F, 0F, false);
-		infusionStation.texOffs(0, 10).addBox(-1.5F, 0F, -2.5F, 0F, 7F, 5F, 0F, false);
-		infusionStation.texOffs(16, 7).addBox(-5F, -6F, 0F, 6F, 6F, 0F, 0F, false);
-		infusionStation.texOffs(0, 29).addBox(1F, -6F, 0F, 6F, 8F, 0F, 0F, false);
-		infusionStation.texOffs(0, 7).addBox(2F, 3F, -2F, 4F, 4F, 4F, 0F, false);
-		infusionStation.texOffs(0, 0).addBox(3.5F, 2F, -.5F, 1F, 1F, 1F, 0F, false);
+		
+		base = new ModelRenderer(this);
+		base.setPos(2F, 8F, -3F);
+		infusionStation.addChild(base);
+		base.texOffs(0, 0).addBox(-7F, -1F, 0F, 12F, 1F, 6F, 0F, false);
 
-		ModelRenderer apple = new ModelRenderer(this);
+		blaze_rod = new ModelRenderer(this);
+		blaze_rod.setPos(-1F, 8F, -3F);
+		infusionStation.addChild(blaze_rod);
+		blaze_rod.texOffs(14, 13).addBox(-6F, -14F, 2F, 2F, 14F, 2F, 0F, false);
+
+		potion = new ModelRenderer(this);
+		potion.setPos(-1.5F, 3.5F, 0F);
+		infusionStation.addChild(potion);
+		potion.texOffs(0, 22).addBox(-2.5F, -3.5F, 0F, 5F, 7F, 0F, 0F, false);
+		potion.texOffs(0, 10).addBox(0F, -3.5F, -2.5F, 0F, 7F, 5F, 0F, false);
+
+		spout = new ModelRenderer(this);
+		spout.setPos(1F, 0F, 0F);
+		infusionStation.addChild(spout);
+		spout.texOffs(16, 7).addBox(-6F, -6F, 0F, 6F, 6F, 0F, 0F, false);
+		spout.texOffs(0, 29).addBox(0F, -6F, 0F, 6F, 8F, 0F, 0F, false);
+
+		apple = new ModelRenderer(this);
 		apple.setPos(4.8543F, 2.6472F, 0F);
 		infusionStation.addChild(apple);
-		setRotationAngle(apple, 0F, 0F, .7854F);
-		apple.texOffs(0, 1).addBox(0F, -1.5F, -.5F, 0F, 2F, 1F, 0F, false);
+		apple.texOffs(0, 7).addBox(-2.8543F, .3528F, -2F, 4F, 4F, 4F, 0F, false);
+		apple.texOffs(0, 0).addBox(-1.3543F, -.6472F, -.5F, 1F, 1F, 1F, 0F, false);
+
+		appleLeaf = new ModelRenderer(this);
+		appleLeaf.setPos(0F, 0F, 0F);
+		apple.addChild(appleLeaf);
+		setRotationAngle(appleLeaf, 0F, 0F, .7854F);
+		appleLeaf.texOffs(0, 1).addBox(0F, -1.5F, -.5F, 0F, 2F, 1F, 0F, false);
+	}
+
+	public void setUpForRender(boolean hasPotion, boolean hasBottle, boolean hasFluid, boolean hasFood)
+	{
+		infusionStation.visible = true;
+		base.visible = true;
+		blaze_rod.visible = true;
+		spout.visible = true;
+		potion.visible = hasPotion || hasBottle || hasFluid;
+		apple.visible = hasFood;
+		appleLeaf.visible = apple.visible;
 	}
 
 	@Override
