@@ -209,7 +209,7 @@ artifacts {
 }
 
 if(System.getenv('GENERATE_CHANGELOG') != null) {
-    def previousGitTag = { ->
+    /*def previousGitTag = { ->
         def code = new ByteArrayOutputStream()
 
         exec {
@@ -218,9 +218,9 @@ if(System.getenv('GENERATE_CHANGELOG') != null) {
         }
 
         return code.toString().trim().split('-')[0]
-    }
+    }*/
 
-	// def previousGitTag = ''
+	def previousGitTag = ''
 
     task gitChangelogTask(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
         file = file("CHANGELOG.md")
