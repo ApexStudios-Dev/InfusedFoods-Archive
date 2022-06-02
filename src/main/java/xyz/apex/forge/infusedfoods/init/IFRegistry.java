@@ -18,7 +18,7 @@ public final class IFRegistry extends AbstractRegistrator<IFRegistry>
 	{
 		super(InfusedFoods.ID);
 
-		itemGroup(() -> CreativeModeTab.TAB_BREWING);
+		creativeModeTab(() -> CreativeModeTab.TAB_BREWING);
 	}
 
 	public static void bootstrap()

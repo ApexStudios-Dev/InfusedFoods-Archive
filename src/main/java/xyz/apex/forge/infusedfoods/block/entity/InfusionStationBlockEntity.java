@@ -21,8 +21,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.network.PacketDistributor;
 
 import xyz.apex.forge.apexcore.lib.block.entity.BaseBlockEntity;
 import xyz.apex.forge.apexcore.lib.util.NameableMutable;
@@ -176,26 +176,24 @@ public final class InfusionStationBlockEntity extends BaseBlockEntity implements
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag tagCompound)
+	public void saveAdditional(CompoundTag compoundTag)
 	{
 		if(inventory != null)
 		{
 			var inventoryTag = inventory.serializeNBT();
-			tagCompound.put(NBT_INVENTORY, inventoryTag);
+			compoundTag.put(NBT_INVENTORY, inventoryTag);
 		}
 
 		if(customName != null)
 		{
 			var customNameJson = TextComponent.Serializer.toJson(customName);
-			tagCompound.putString(NBT_CUSTOM_NAME, customNameJson);
+			compoundTag.putString(NBT_CUSTOM_NAME, customNameJson);
 		}
 
 		if(infuseTime > 0)
-			tagCompound.putInt(NBT_INFUSION_TIME, infuseTime);
+			compoundTag.putInt(NBT_INFUSION_TIME, infuseTime);
 		if(blazeFuel > 0)
-			tagCompound.putInt(NBT_BLAZE_FUEL, blazeFuel);
-
-		return super.save(tagCompound);
+			compoundTag.putInt(NBT_BLAZE_FUEL, blazeFuel);
 	}
 
 	@Nonnull

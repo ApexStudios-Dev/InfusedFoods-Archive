@@ -29,7 +29,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.fmllegacy.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor;
 
 import xyz.apex.forge.apexcore.lib.block.ContainerBlock;
 import xyz.apex.forge.apexcore.lib.block.VoxelShaper;
@@ -106,7 +106,7 @@ public final class InfusionStationBlock extends ContainerBlock<InfusionStationBl
 	public BlockState updateShape(BlockState blockState, Direction facing, BlockState facingBlockState, LevelAccessor level, BlockPos pos, BlockPos facingPos)
 	{
 		if(blockState.getValue(WATERLOGGED))
-			level.getLiquidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+			level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
 
 		return super.updateShape(blockState, facing, facingBlockState, level, pos, facingPos);
 	}
