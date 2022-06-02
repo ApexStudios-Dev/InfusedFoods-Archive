@@ -1,27 +1,27 @@
 package xyz.apex.forge.infusedfoods.container;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.IIntArray;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationInventory;
 import xyz.apex.forge.infusedfoods.container.slot.*;
 
-public final class InfusionStationContainer extends Container
+public final class InfusionStationMenu extends AbstractContainerMenu
 {
-	public final PlayerEntity player;
+	public final Player player;
 	public final InfusionStationInventory itemHandler;
 
-	private final IIntArray dataAccess;
+	private final ContainerData dataAccess;
 
-	public InfusionStationContainer(ContainerType<?> menuType, int windowId, PlayerInventory playerInventory, InfusionStationInventory itemHandler, IIntArray dataAccess)
+	public InfusionStationMenu(MenuType<?> menuType, int windowId, Inventory playerInventory, InfusionStationInventory itemHandler, ContainerData dataAccess)
 	{
 		super(menuType, windowId);
 
@@ -39,15 +39,15 @@ public final class InfusionStationContainer extends Container
 		addSlot(new SlotInfusionBottle(itemHandler, 8, 51));
 
 		// player inventory slots
-		for(int i = 0; i < 3; i++)
+		for(var i = 0; i < 3; i++)
 		{
-			for(int j = 0; j < 9; j++)
+			for(var j = 0; j < 9; j++)
 			{
 				addSlot(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
 			}
 		}
 
-		for(int i = 0; i < 9; ++i)
+		for(var i = 0; i < 9; ++i)
 		{
 			addSlot(new Slot(playerInventory, i, 8 + i * 18, 84 + 58));
 		}
@@ -64,22 +64,22 @@ public final class InfusionStationContainer extends Container
 	}
 
 	@Override
-	public boolean stillValid(PlayerEntity player)
+	public boolean stillValid(Player player)
 	{
 		return player.isAlive() && player.containerMenu == this;
 	}
 
 	@Override
-	public ItemStack quickMoveStack(PlayerEntity player, int slotIndex)
+	public ItemStack quickMoveStack(Player player, int slotIndex)
 	{
-		ItemStack stack = ItemStack.EMPTY;
-		Slot slot = slots.get(slotIndex);
+		var stack = ItemStack.EMPTY;
+		var slot = slots.get(slotIndex);
 
 		if(slot != null && slot.hasItem())
 		{
-			ItemStack stack1 = slot.getItem();
+			var stack1 = slot.getItem();
 			stack = stack1.copy();
-			int maxIndex = itemHandler.getSlots();
+			var maxIndex = itemHandler.getSlots();
 
 			if(slotIndex < maxIndex)
 			{
@@ -98,23 +98,23 @@ public final class InfusionStationContainer extends Container
 		return stack;
 	}
 
-	public void updateFromNetwork(CompoundNBT updateTag)
+	public void updateFromNetwork(CompoundTag updateTag)
 	{
-		if(updateTag.contains(InfusionStationBlockEntity.NBT_INVENTORY, Constants.NBT.TAG_COMPOUND))
+		if(updateTag.contains(InfusionStationBlockEntity.NBT_INVENTORY, Tag.TAG_COMPOUND))
 		{
-			CompoundNBT inventoryTag = updateTag.getCompound(InfusionStationBlockEntity.NBT_INVENTORY);
+			var inventoryTag = updateTag.getCompound(InfusionStationBlockEntity.NBT_INVENTORY);
 			itemHandler.deserializeNBT(inventoryTag);
 		}
 
 		int infuseTime;
 		int blazeFuel;
 
-		if(updateTag.contains(InfusionStationBlockEntity.NBT_INFUSION_TIME, Constants.NBT.TAG_ANY_NUMERIC))
+		if(updateTag.contains(InfusionStationBlockEntity.NBT_INFUSION_TIME, Tag.TAG_ANY_NUMERIC))
 			infuseTime = updateTag.getInt(InfusionStationBlockEntity.NBT_INFUSION_TIME);
 		else
 			infuseTime = 0;
 
-		if(updateTag.contains(InfusionStationBlockEntity.NBT_BLAZE_FUEL, Constants.NBT.TAG_ANY_NUMERIC))
+		if(updateTag.contains(InfusionStationBlockEntity.NBT_BLAZE_FUEL, Tag.TAG_ANY_NUMERIC))
 			blazeFuel = updateTag.getInt(InfusionStationBlockEntity.NBT_BLAZE_FUEL);
 		else
 			blazeFuel = 0;

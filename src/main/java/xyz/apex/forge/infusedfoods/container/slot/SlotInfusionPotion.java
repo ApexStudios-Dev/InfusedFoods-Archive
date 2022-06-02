@@ -1,9 +1,8 @@
 package xyz.apex.forge.infusedfoods.container.slot;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionUtils;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraftforge.items.SlotItemHandler;
 
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationInventory;
@@ -23,7 +22,7 @@ public final class SlotInfusionPotion extends SlotItemHandler
 		if(stack.getItem() != Items.POTION)
 			return false;
 
-		Potion potion = PotionUtils.getPotion(stack);
+		var potion = PotionUtils.getPotion(stack);
 		return potion.getEffects().size() == 1;
 	}
 }

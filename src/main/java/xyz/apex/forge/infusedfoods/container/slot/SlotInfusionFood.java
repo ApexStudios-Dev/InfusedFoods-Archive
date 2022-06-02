@@ -1,14 +1,12 @@
 package xyz.apex.forge.infusedfoods.container.slot;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.PotionUtils;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraftforge.items.SlotItemHandler;
 
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationInventory;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 public final class SlotInfusionFood extends SlotItemHandler
 {
@@ -23,7 +21,7 @@ public final class SlotInfusionFood extends SlotItemHandler
 		if(!stack.isEdible())
 			return false;
 
-		List<EffectInstance> customEffects = PotionUtils.getCustomEffects(stack);
+		var customEffects = PotionUtils.getCustomEffects(stack);
 		return customEffects.isEmpty();
 	}
 }

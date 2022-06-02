@@ -2,7 +2,7 @@ package xyz.apex.forge.infusedfoods.init;
 
 import org.apache.commons.lang3.Validate;
 
-import net.minecraft.item.ItemGroup;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.fml.ModLoadingContext;
 
 import xyz.apex.forge.infusedfoods.InfusedFoods;
@@ -18,7 +18,7 @@ public final class IFRegistry extends AbstractRegistrator<IFRegistry>
 	{
 		super(InfusedFoods.ID);
 
-		itemGroup(() -> ItemGroup.TAB_BREWING);
+		itemGroup(() -> CreativeModeTab.TAB_BREWING);
 	}
 
 	public static void bootstrap()

@@ -2,39 +2,38 @@ package xyz.apex.forge.infusedfoods.init;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.data.ShapedRecipeBuilder;
-import net.minecraft.data.loot.BlockLootTables;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.loot.ConstantRange;
-import net.minecraft.loot.ItemLootEntry;
-import net.minecraft.loot.LootPool;
-import net.minecraft.loot.LootTable;
-import net.minecraft.loot.functions.CopyNbt;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.IntArray;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.loot.BlockLoot;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.inventory.SimpleContainerData;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
+import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.client.model.generators.ModelBuilder;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.ToolType;
-import net.minecraftforge.fml.DatagenModLoader;
 
 import xyz.apex.forge.infusedfoods.block.InfusionStationBlock;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationInventory;
-import xyz.apex.forge.infusedfoods.client.IFItemStackBlockEntityRenderer;
 import xyz.apex.forge.infusedfoods.client.renderer.InfusionStationBlockEntityRenderer;
 import xyz.apex.forge.infusedfoods.client.screen.InfusionStationContainerScreen;
-import xyz.apex.forge.infusedfoods.container.InfusionStationContainer;
+import xyz.apex.forge.infusedfoods.container.InfusionStationMenu;
+import xyz.apex.forge.infusedfoods.item.InfusionStationBlockItem;
 import xyz.apex.forge.utility.registrator.entry.BlockEntityEntry;
 import xyz.apex.forge.utility.registrator.entry.BlockEntry;
-import xyz.apex.forge.utility.registrator.entry.ContainerEntry;
 import xyz.apex.forge.utility.registrator.entry.ItemEntry;
+import xyz.apex.forge.utility.registrator.entry.MenuEntry;
 
 import static xyz.apex.forge.utility.registrator.provider.RegistrateLangExtProvider.EN_GB;
 
@@ -66,12 +65,12 @@ public final class IFElements
 			)
 			.loot((lootTables, block) -> lootTables.add(block, LootTable
 					.lootTable()
-					.withPool(BlockLootTables.applyExplosionCondition(block, LootPool
+					.withPool(BlockLoot.applyExplosionCondition(block, LootPool
 							.lootPool()
-							.setRolls(ConstantRange.exactly(1))
-							.add(ItemLootEntry.lootTableItem(block))
-							.apply(CopyNbt
-									.copyData(CopyNbt.Source.BLOCK_ENTITY)
+							.setRolls(ConstantValue.exactly(1))
+							.add(LootItem.lootTableItem(block))
+							.apply(CopyNbtFunction
+									.copyData(ContextNbtProvider.BLOCK_ENTITY)
 									.copy(InfusionStationBlockEntity.NBT_BLAZE_FUEL, InfusionStationBlockEntity.NBT_BLAZE_FUEL)
 									.copy(InfusionStationBlockEntity.NBT_CUSTOM_NAME, InfusionStationBlockEntity.NBT_CUSTOM_NAME)
 									.copy(InfusionStationBlockEntity.NBT_INVENTORY + '.' + InfusionStationInventory.NBT_INFUSION_FLUID, InfusionStationBlockEntity.NBT_INVENTORY + '.' + InfusionStationInventory.NBT_INFUSION_FLUID)
@@ -84,13 +83,12 @@ public final class IFElements
 					.define('#', Tags.Items.STONE)
 					.pattern(" B ")
 					.pattern("###")
-					.unlockedBy("has_blaze_rod", RegistrateRecipeProvider.hasItem(Tags.Items.RODS_BLAZE))
+					.unlockedBy("has_blaze_rod", RegistrateRecipeProvider.has(Tags.Items.RODS_BLAZE))
 					.save(provider, ctx.getId())
 			)
 
 			.initialProperties(Material.METAL)
 			.sound(SoundType.METAL)
-			.harvestTool(ToolType.PICKAXE)
 			.noOcclusion()
 			.requiresCorrectToolForDrops()
 			.strength(.5F)
@@ -98,8 +96,9 @@ public final class IFElements
 
 			.addRenderType(() -> RenderType::cutout)
 
-			.item()
-				.setISTER(() -> DatagenModLoader.isRunningDataGen() ? () -> null : IFItemStackBlockEntityRenderer::new)
+			.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+
+			.item(InfusionStationBlockItem::new)
 				.model((ctx, provider) -> {
 							ResourceLocation id = ctx.getId();
 							ModelFile.UncheckedModelFile builtInEntity = new ModelFile.UncheckedModelFile("minecraft:builtin/entity");
@@ -157,12 +156,12 @@ public final class IFElements
 
 	.register();
 
-	public static final ContainerEntry<InfusionStationContainer> INFUSION_STATION_CONTAINER = REGISTRY
-			.container("infusion_station", (containerType, windowId, playerInventory, buffer) -> new InfusionStationContainer(containerType, windowId, playerInventory, new InfusionStationInventory(), new IntArray(InfusionStationBlockEntity.DATA_SLOT_COUNT)), () -> InfusionStationContainerScreen::new)
+	public static final MenuEntry<InfusionStationMenu> INFUSION_STATION_CONTAINER = REGISTRY
+			.container("infusion_station", (containerType, windowId, playerInventory, buffer) -> new InfusionStationMenu(containerType, windowId, playerInventory, new InfusionStationInventory(), new SimpleContainerData(InfusionStationBlockEntity.DATA_SLOT_COUNT)), () -> InfusionStationContainerScreen::new)
 			.register();
 
-	public static final ItemEntry<BlockItem> INFUSION_STATION_BLOCK_ITEM = ItemEntry.cast(INFUSION_STATION_BLOCK.getSibling(Item.class));
-	public static final BlockEntityEntry<InfusionStationBlockEntity> INFUSION_STATION_BLOCK_ENTITY = BlockEntityEntry.cast(INFUSION_STATION_BLOCK.getSibling(TileEntityType.class));
+	public static final ItemEntry<InfusionStationBlockItem> INFUSION_STATION_BLOCK_ITEM = ItemEntry.cast(INFUSION_STATION_BLOCK.getSibling(Item.class));
+	public static final BlockEntityEntry<InfusionStationBlockEntity> INFUSION_STATION_BLOCK_ENTITY = BlockEntityEntry.cast(INFUSION_STATION_BLOCK.getSibling(BlockEntityType.class));
 
 	static void bootstrap()
 	{

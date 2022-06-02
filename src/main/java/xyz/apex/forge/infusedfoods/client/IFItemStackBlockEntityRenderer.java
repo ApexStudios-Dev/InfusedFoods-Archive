@@ -1,42 +1,57 @@
 package xyz.apex.forge.infusedfoods.client;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.Lazy;
 
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.client.renderer.InfusionStationBlockEntityRenderer;
 import xyz.apex.forge.infusedfoods.init.IFElements;
 
-public final class IFItemStackBlockEntityRenderer extends ItemStackTileEntityRenderer
+public final class IFItemStackBlockEntityRenderer extends BlockEntityWithoutLevelRenderer
 {
+	private static final Lazy<BlockEntityWithoutLevelRenderer> INSTANCE = Lazy.of(() -> {
+		var mc = Minecraft.getInstance();
+		return new IFItemStackBlockEntityRenderer(new BlockEntityRendererProvider.Context(mc.getBlockEntityRenderDispatcher(), mc.getBlockRenderer(), mc.getEntityModels(), mc.font));
+	});
+
 	private final InfusionStationBlockEntityRenderer infusionStationBlockEntityRenderer;
-	private final Lazy<InfusionStationBlockEntity> infusionStationBlockEntity = Lazy.of(IFElements.INFUSION_STATION_BLOCK_ENTITY::createBlockEntity);
+	private final Lazy<InfusionStationBlockEntity> infusionStationBlockEntity = Lazy.of(() -> {
+		var blockState = IFElements.INFUSION_STATION_BLOCK.defaultBlockState();
+		return IFElements.INFUSION_STATION_BLOCK_ENTITY.createBlockEntity(BlockPos.ZERO, blockState);
+	});
 
-	public IFItemStackBlockEntityRenderer()
+	private IFItemStackBlockEntityRenderer(BlockEntityRendererProvider.Context ctx)
 	{
-		super();
+		super(ctx.getBlockEntityRenderDispatcher(), ctx.getModelSet());
 
-		infusionStationBlockEntityRenderer = new InfusionStationBlockEntityRenderer(TileEntityRendererDispatcher.instance);
+		infusionStationBlockEntityRenderer = new InfusionStationBlockEntityRenderer(ctx);
 	}
 
 	@Override
-	public void renderByItem(ItemStack stack, ItemCameraTransforms.TransformType transformType, MatrixStack pose, IRenderTypeBuffer buffer, int light, int overlay)
+	public void renderByItem(ItemStack stack, ItemTransforms.TransformType transformType, PoseStack pose, MultiBufferSource buffer, int light, int overlay)
 	{
-		float partialTick = Minecraft.getInstance().getDeltaFrameTime();
+		var partialTick = Minecraft.getInstance().getDeltaFrameTime();
 
 		if(IFElements.INFUSION_STATION_BLOCK_ITEM.isInStack(stack))
 		{
-			InfusionStationBlockEntity blockEntity = this.infusionStationBlockEntity.get();
+			var blockEntity = this.infusionStationBlockEntity.get();
 			infusionStationBlockEntityRenderer.renderForGUI(stack, blockEntity, partialTick, pose, buffer, light, overlay, transformType);
 		}
 		else
 			super.renderByItem(stack, transformType, pose, buffer, light, overlay);
+	}
+
+	public static BlockEntityWithoutLevelRenderer getInstance()
+	{
+		return INSTANCE.get();
 	}
 }

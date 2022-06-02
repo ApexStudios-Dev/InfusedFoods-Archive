@@ -3,14 +3,14 @@ package xyz.apex.forge.infusedfoods.block.entity;
 import com.google.common.util.concurrent.Runnables;
 import org.apache.commons.lang3.Validate;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.PotionUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -124,27 +124,27 @@ public final class InfusionStationInventory extends ItemStackHandler
 	}
 
 	@Override
-	public void deserializeNBT(CompoundNBT tagCompound)
+	public void deserializeNBT(CompoundTag tagCompound)
 	{
 		infusionFluid = InfusionFluid.EMPTY;
 
 		super.deserializeNBT(tagCompound);
 
-		if(tagCompound.contains(NBT_INFUSION_FLUID, Constants.NBT.TAG_COMPOUND))
+		if(tagCompound.contains(NBT_INFUSION_FLUID, Tag.TAG_COMPOUND))
 		{
-			CompoundNBT fluidTag = tagCompound.getCompound(NBT_INFUSION_FLUID);
+			var fluidTag = tagCompound.getCompound(NBT_INFUSION_FLUID);
 			infusionFluid = new InfusionFluid(fluidTag);
 		}
 	}
 
 	@Override
-	public CompoundNBT serializeNBT()
+	public CompoundTag serializeNBT()
 	{
-		CompoundNBT tagCompound = super.serializeNBT();
+		var tagCompound = super.serializeNBT();
 
 		if(!infusionFluid.isEmpty())
 		{
-			CompoundNBT fluidTag = infusionFluid.serialize();
+			var fluidTag = infusionFluid.serialize();
 			tagCompound.put(NBT_INFUSION_FLUID, fluidTag);
 		}
 
@@ -161,7 +161,7 @@ public final class InfusionStationInventory extends ItemStackHandler
 		return !infusionFluid.isEmpty();
 	}
 
-	public void incrementInfusionFluid(EffectInstance effectInstance)
+	public void incrementInfusionFluid(MobEffectInstance effectInstance)
 	{
 		if(infusionFluid.isEmpty())
 			infusionFluid = new InfusionFluid(effectInstance);
@@ -182,12 +182,12 @@ public final class InfusionStationInventory extends ItemStackHandler
 	{
 		public static final InfusionFluid EMPTY = new InfusionFluid(null, 0, 0, 0);
 
-		@Nullable private final Effect effect;
+		@Nullable private final MobEffect effect;
 		private final int amount;
 		private final int duration;
 		private final int amplifier;
 
-		private InfusionFluid(@Nullable Effect effect, int amount, int duration, int amplifier)
+		private InfusionFluid(@Nullable MobEffect effect, int amount, int duration, int amplifier)
 		{
 			this.effect = effect;
 			this.amount = amount;
@@ -195,17 +195,17 @@ public final class InfusionStationInventory extends ItemStackHandler
 			this.amplifier = amplifier;
 		}
 
-		public InfusionFluid(CompoundNBT tag)
+		public InfusionFluid(CompoundTag tag)
 		{
-			Validate.isTrue(tag.contains(NBT_EFFECT, Constants.NBT.TAG_STRING));
-			Validate.isTrue(tag.contains(NBT_AMOUNT, Constants.NBT.TAG_ANY_NUMERIC));
-			Validate.isTrue(tag.contains(NBT_DURATION, Constants.NBT.TAG_ANY_NUMERIC));
-			Validate.isTrue(tag.contains(NBT_AMPLIFIER, Constants.NBT.TAG_ANY_NUMERIC));
+			Validate.isTrue(tag.contains(NBT_EFFECT, Tag.TAG_STRING));
+			Validate.isTrue(tag.contains(NBT_AMOUNT, Tag.TAG_ANY_NUMERIC));
+			Validate.isTrue(tag.contains(NBT_DURATION, Tag.TAG_ANY_NUMERIC));
+			Validate.isTrue(tag.contains(NBT_AMPLIFIER, Tag.TAG_ANY_NUMERIC));
 
-			ResourceLocation registryName = new ResourceLocation(tag.getString(NBT_EFFECT));
+			var registryName = new ResourceLocation(tag.getString(NBT_EFFECT));
 
 			// effect = Registry.MOB_EFFECT.get(registryName);
-			effect = ForgeRegistries.POTIONS.getValue(registryName);
+			effect = ForgeRegistries.MOB_EFFECTS.getValue(registryName);
 			amount = tag.getInt(NBT_AMOUNT);
 			duration = tag.getInt(NBT_DURATION);
 			amplifier = tag.getInt(NBT_AMPLIFIER);
@@ -216,7 +216,7 @@ public final class InfusionStationInventory extends ItemStackHandler
 			this(fluid.effect, fluid.amount, fluid.duration, fluid.amplifier);
 		}
 
-		public InfusionFluid(EffectInstance effectInstance)
+		public InfusionFluid(MobEffectInstance effectInstance)
 		{
 			this(effectInstance.getEffect(), 5, effectInstance.getDuration(), effectInstance.getAmplifier());
 		}
@@ -227,7 +227,7 @@ public final class InfusionStationInventory extends ItemStackHandler
 		}
 
 		@Nullable
-		public Effect getEffect()
+		public MobEffect getEffect()
 		{
 			return effect;
 		}
@@ -256,16 +256,16 @@ public final class InfusionStationInventory extends ItemStackHandler
 		{
 			if(effect != null)
 			{
-				int l = amplifier + 1;
+				var l = amplifier + 1;
 
 				if(l == 0)
 					return 0;
 
-				int k = effect.getColor();
+				var k = effect.getColor();
 
-				float f = (float) (l * (k >> 16 & 255)) / 255F;
-				float f1 = (float) (l * (k >> 8 & 255)) / 255F;
-				float f2 = (float) (l * (k >> 0 & 255)) / 255F;
+				var f = (float) (l * (k >> 16 & 255)) / 255F;
+				var f1 = (float) (l * (k >> 8 & 255)) / 255F;
+				var f2 = (float) (l * (k >> 0 & 255)) / 255F;
 
 				f = f / (float) l * 255F;
 				f1 = f1 / (float) l * 255F;
@@ -286,34 +286,34 @@ public final class InfusionStationInventory extends ItemStackHandler
 
 		private InfusionFluid increment(int count)
 		{
-			int newAmount = Math.min(amount + count, 5);
+			var newAmount = Math.min(amount + count, 5);
 			return new InfusionFluid(effect, newAmount, duration, amplifier);
 		}
 
 		@Nullable
-		public EffectInstance toEffectInstance()
+		public MobEffectInstance toEffectInstance()
 		{
 			if(effect == null)
 				return null;
 
-			return new EffectInstance(effect, duration, amplifier, false, true, true, null);
+			return new MobEffectInstance(effect, duration, amplifier, false, true, true, null);
 		}
 
-		public boolean is(Effect effect)
+		public boolean is(MobEffect effect)
 		{
 			return !isEmpty() && this.effect == effect;
 		}
 
-		public boolean is(EffectInstance effectInstance)
+		public boolean is(MobEffectInstance effectInstance)
 		{
 			return !isEmpty() && is(effectInstance.getEffect());
 		}
 
-		public CompoundNBT serialize()
+		public CompoundTag serialize()
 		{
-			CompoundNBT tag = new CompoundNBT();
+			var tag = new CompoundTag();
 
-			ResourceLocation registryName = Objects.requireNonNull(effect.getRegistryName());
+			var registryName = Objects.requireNonNull(effect.getRegistryName());
 			tag.putString(NBT_EFFECT, registryName.toString());
 			tag.putInt(NBT_AMOUNT, amount);
 			tag.putInt(NBT_DURATION, duration);
