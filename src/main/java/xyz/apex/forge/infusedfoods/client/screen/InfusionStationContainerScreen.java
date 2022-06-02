@@ -5,22 +5,17 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Effect;
-import net.minecraft.util.StringUtils;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.ITextComponent;
 
+import xyz.apex.forge.infusedfoods.InfusedFoods;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationInventory;
 import xyz.apex.forge.infusedfoods.container.InfusionStationContainer;
 import xyz.apex.forge.infusedfoods.init.IFElements;
 
 import java.util.List;
-import java.util.Map;
 
 public final class InfusionStationContainerScreen extends ContainerScreen<InfusionStationContainer>
 {
@@ -93,57 +88,9 @@ public final class InfusionStationContainerScreen extends ContainerScreen<Infusi
 			if(menu.itemHandler.hasInfusionFluid())
 			{
 				InfusionStationInventory.InfusionFluid infusionFluid = menu.itemHandler.getInfusionFluid();
-				Effect effect = infusionFluid.getEffect();
-
-				if(effect != null)
-				{
-					List<ITextComponent> tooltip = Lists.newArrayList();
-					IFormattableTextComponent potionName = new TranslationTextComponent(effect.getDescriptionId());
-
-					int amplifier = infusionFluid.getAmplifier();
-					int duration = infusionFluid.getDuration();
-
-					if(amplifier > 0)
-						potionName = new TranslationTextComponent("potion.withAmplifier", potionName, new TranslationTextComponent("potion.potency." + amplifier));
-					if(duration > 20)
-					{
-						int i = MathHelper.floor(duration * 1F);
-						String durationFormat = StringUtils.formatTickDuration(i);
-						potionName = new TranslationTextComponent("potion.withDuration", potionName, durationFormat);
-					}
-
-					tooltip.add(potionName.withStyle(effect.getCategory().getTooltipFormatting()));
-
-					Map<Attribute, AttributeModifier> attributeModifiers = effect.getAttributeModifiers();
-
-					if(!attributeModifiers.isEmpty())
-					{
-						tooltip.add(StringTextComponent.EMPTY);
-						tooltip.add(new TranslationTextComponent("potion.whenDrank").withStyle(TextFormatting.DARK_PURPLE));
-
-						attributeModifiers.forEach((attribute, attributeModifier) -> {
-							AttributeModifier mod = attributeModifier;
-							AttributeModifier mod1 = new AttributeModifier(mod.getName(), effect.getAttributeModifierValue(amplifier, mod), mod.getOperation());
-
-							double d0 = mod1.getAmount();
-							double d1;
-
-							AttributeModifier.Operation operation = mod1.getOperation();
-
-							if(operation != AttributeModifier.Operation.MULTIPLY_BASE && operation != AttributeModifier.Operation.MULTIPLY_TOTAL)
-								d1 = d0;
-							else
-								d1 = d0 * 100D;
-
-							if(d0 > 0D)
-								tooltip.add(new TranslationTextComponent("attribute.modifier.plus." + operation.toValue(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(d1), new TranslationTextComponent(attribute.getDescriptionId())).withStyle(TextFormatting.BLUE));
-							else
-								tooltip.add(new TranslationTextComponent("attribute.modifier.take." + operation.toValue(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(d1), new TranslationTextComponent(attribute.getDescriptionId())).withStyle(TextFormatting.BLUE));
-						});
-					}
-
-					renderWrappedToolTip(pose, tooltip, mouseX, mouseY, font);
-				}
+				List<ITextComponent> tooltip = Lists.newArrayList();
+				InfusedFoods.appendPotionEffectTooltips(infusionFluid, tooltip);
+				renderWrappedToolTip(pose, tooltip, mouseX, mouseY, font);
 			}
 		}
 	}

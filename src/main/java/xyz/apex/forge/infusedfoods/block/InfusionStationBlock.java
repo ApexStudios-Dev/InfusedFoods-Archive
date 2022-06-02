@@ -6,8 +6,6 @@ import net.minecraft.block.HorizontalBlock;
 import net.minecraft.block.IWaterLoggable;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -17,23 +15,23 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.PathType;
-import net.minecraft.potion.Effect;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.*;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.items.IItemHandler;
 
@@ -42,13 +40,11 @@ import xyz.apex.forge.apexcore.lib.block.VoxelShaper;
 import xyz.apex.forge.apexcore.lib.util.ContainerHelper;
 import xyz.apex.forge.infusedfoods.InfusedFoods;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
-import xyz.apex.forge.infusedfoods.block.entity.InfusionStationInventory;
 import xyz.apex.forge.infusedfoods.init.IFElements;
 import xyz.apex.forge.infusedfoods.network.PacketSyncInfusionData;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 public final class InfusionStationBlock extends ContainerBlock<InfusionStationBlockEntity> implements IWaterLoggable
@@ -232,67 +228,6 @@ public final class InfusionStationBlock extends ContainerBlock<InfusionStationBl
 	public void appendHoverText(ItemStack stack, @Nullable IBlockReader level, List<ITextComponent> tooltip, ITooltipFlag flag)
 	{
 		super.appendHoverText(stack, level, tooltip, flag);
-
-		CompoundNBT stackTag = stack.getTag();
-
-		if(stackTag != null && stackTag.contains(InfusionStationBlockEntity.NBT_INVENTORY, Constants.NBT.TAG_COMPOUND))
-		{
-			CompoundNBT inventoryTag = stackTag.getCompound(InfusionStationBlockEntity.NBT_INVENTORY);
-
-			if(inventoryTag.contains(InfusionStationInventory.NBT_INFUSION_FLUID, Constants.NBT.TAG_COMPOUND))
-			{
-				CompoundNBT fluidTag = inventoryTag.getCompound(InfusionStationInventory.NBT_INFUSION_FLUID);
-				InfusionStationInventory.InfusionFluid fluid = new InfusionStationInventory.InfusionFluid(fluidTag);
-
-				Effect effect = fluid.getEffect();
-
-				if(effect != null)
-				{
-					IFormattableTextComponent potionName = new TranslationTextComponent(effect.getDescriptionId());
-
-					int amplifier = fluid.getAmplifier();
-					int duration = fluid.getDuration();
-
-					if(amplifier > 0)
-						potionName = new TranslationTextComponent("potion.withAmplifier", potionName, new TranslationTextComponent("potion.potency." + amplifier));
-					if(duration > 20)
-					{
-						int i = MathHelper.floor(duration * 1F);
-						String durationFormat = StringUtils.formatTickDuration(i);
-						potionName = new TranslationTextComponent("potion.withDuration", potionName, durationFormat);
-					}
-
-					tooltip.add(potionName.withStyle(effect.getCategory().getTooltipFormatting()));
-
-					Map<Attribute, AttributeModifier> attributeModifiers = effect.getAttributeModifiers();
-
-					if(!attributeModifiers.isEmpty())
-					{
-						tooltip.add(StringTextComponent.EMPTY);
-						tooltip.add(new TranslationTextComponent("potion.whenDrank").withStyle(TextFormatting.DARK_PURPLE));
-
-						attributeModifiers.forEach((attribute, attributeModifier) -> {
-							AttributeModifier mod = attributeModifier;
-							AttributeModifier mod1 = new AttributeModifier(mod.getName(), effect.getAttributeModifierValue(amplifier, mod), mod.getOperation());
-
-							double d0 = mod1.getAmount();
-							double d1;
-
-							AttributeModifier.Operation operation = mod1.getOperation();
-
-							if(operation != AttributeModifier.Operation.MULTIPLY_BASE && operation != AttributeModifier.Operation.MULTIPLY_TOTAL)
-								d1 = d0;
-							else
-								d1 = d0 * 100D;
-
-							if(d0 > 0D)
-								tooltip.add(new TranslationTextComponent("attribute.modifier.plus." + operation.toValue(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(d1), new TranslationTextComponent(attribute.getDescriptionId())).withStyle(TextFormatting.BLUE));
-							else
-								tooltip.add(new TranslationTextComponent("attribute.modifier.take." + operation.toValue(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(d1), new TranslationTextComponent(attribute.getDescriptionId())).withStyle(TextFormatting.BLUE));
-						});
-					}
-				}
-			}
-		}
+		InfusedFoods.appendPotionEffectTooltips(stack, tooltip);
 	}
 }
