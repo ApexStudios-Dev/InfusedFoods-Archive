@@ -7,11 +7,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Slot;
+import net.minecraft.potion.Effect;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 
 import xyz.apex.forge.infusedfoods.InfusedFoods;
-import xyz.apex.forge.infusedfoods.block.entity.InfusionStationInventory;
+import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.container.InfusionStationContainer;
 import xyz.apex.forge.infusedfoods.init.IFElements;
 
@@ -39,9 +40,9 @@ public final class InfusionStationContainerScreen extends ContainerScreen<Infusi
 		renderBackground(pose);
 		super.render(pose, mouseX, mouseY, partialTick);
 
-		renderSlotBackground(pose, InfusionStationInventory.SLOT_BLAZE, 240, 0);
-		renderSlotBackground(pose, InfusionStationInventory.SLOT_POTION, 240, 16);
-		renderSlotBackground(pose, InfusionStationInventory.SLOT_FOOD, 240, 33);
+		renderSlotBackground(pose, InfusionStationBlockEntity.SLOT_BLAZE, 240, 0);
+		renderSlotBackground(pose, InfusionStationBlockEntity.SLOT_POTION, 240, 16);
+		renderSlotBackground(pose, InfusionStationBlockEntity.SLOT_FOOD, 240, 33);
 
 		renderInfusionFluid(pose);
 		renderInfusionProgress(pose);
@@ -85,11 +86,12 @@ public final class InfusionStationContainerScreen extends ContainerScreen<Infusi
 		{
 			fillGradient(pose, tankX, tankY, tankX + tankWidth, tankY + tankHeight, 0x80ffffff, 0x80ffffff);
 
-			if(menu.itemHandler.hasInfusionFluid())
+			Effect effect = menu.blockEntity.getEffect();
+
+			if(effect != null)
 			{
-				InfusionStationInventory.InfusionFluid infusionFluid = menu.itemHandler.getInfusionFluid();
 				List<ITextComponent> tooltip = Lists.newArrayList();
-				InfusedFoods.appendPotionEffectTooltips(infusionFluid, tooltip);
+				InfusedFoods.appendPotionEffectTooltips(effect, menu.blockEntity.getEffectAmplifier(), menu.blockEntity.getEffectDuration(), tooltip);
 				renderWrappedToolTip(pose, tooltip, mouseX, mouseY, font);
 			}
 		}
@@ -97,7 +99,9 @@ public final class InfusionStationContainerScreen extends ContainerScreen<Infusi
 
 	private void renderInfusionFluid(MatrixStack pose)
 	{
-		if(menu.itemHandler.hasInfusionFluid())
+		Effect effect = menu.blockEntity.getEffect();
+
+		if(effect != null)
 		{
 			int tankWidth = 16;
 			int tankHeight = 40;
@@ -107,9 +111,8 @@ public final class InfusionStationContainerScreen extends ContainerScreen<Infusi
 			int fluidWidth = 16;
 			int fluidHeight = 8;
 
-			InfusionStationInventory.InfusionFluid infusionFluid = menu.itemHandler.getInfusionFluid();
-			int fluidAmount = infusionFluid.getAmount();
-			int color = infusionFluid.getColor();
+			int fluidAmount = menu.blockEntity.getEffectAmount();
+			int color = InfusionStationBlockEntity.getColor(effect, menu.blockEntity.getEffectAmplifier());
 
 			getMinecraft().getTextureManager().bind(IFElements.INFUSION_STATION_CONTAINER_SCREEN_TEXTURE);
 
@@ -133,8 +136,8 @@ public final class InfusionStationContainerScreen extends ContainerScreen<Infusi
 	{
 		getMinecraft().getTextureManager().bind(IFElements.INFUSION_STATION_CONTAINER_SCREEN_TEXTURE);
 
-		int blazeFuel = menu.getBlazeFuel();
-		int infuseTime = menu.getInfuseTime();
+		int blazeFuel = menu.blockEntity.getBlazeFuel();
+		int infuseTime = menu.blockEntity.getInfuseTime();
 
 		int blazeWidth = MathHelper.clamp((18 * blazeFuel + 20 - 1) / 20, 0, 18);
 

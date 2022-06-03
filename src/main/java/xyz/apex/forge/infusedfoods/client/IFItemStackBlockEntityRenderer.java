@@ -8,11 +8,14 @@ import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.Lazy;
 
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.client.renderer.InfusionStationBlockEntityRenderer;
 import xyz.apex.forge.infusedfoods.init.IFElements;
+
+import static xyz.apex.forge.apexcore.revamp.block.entity.BaseBlockEntity.NBT_APEX;
 
 public final class IFItemStackBlockEntityRenderer extends ItemStackTileEntityRenderer
 {
@@ -33,7 +36,9 @@ public final class IFItemStackBlockEntityRenderer extends ItemStackTileEntityRen
 
 		if(IFElements.INFUSION_STATION_BLOCK_ITEM.isInStack(stack))
 		{
+			CompoundNBT stackTag = stack.getOrCreateTagElement(NBT_APEX);
 			InfusionStationBlockEntity blockEntity = this.infusionStationBlockEntity.get();
+			blockEntity.deserializeData(stackTag);
 			infusionStationBlockEntityRenderer.renderForGUI(stack, blockEntity, partialTick, pose, buffer, light, overlay, transformType);
 		}
 		else

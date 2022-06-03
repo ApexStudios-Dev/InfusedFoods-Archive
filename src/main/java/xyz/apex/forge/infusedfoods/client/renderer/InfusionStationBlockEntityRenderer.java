@@ -10,14 +10,13 @@ import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.potion.Effect;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.vector.Vector3f;
-import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.items.IItemHandler;
 
 import xyz.apex.forge.infusedfoods.block.InfusionStationBlock;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
-import xyz.apex.forge.infusedfoods.block.entity.InfusionStationInventory;
 import xyz.apex.forge.infusedfoods.client.renderer.model.InfusionStationModel;
 import xyz.apex.forge.infusedfoods.init.IFElements;
 
@@ -35,19 +34,22 @@ public final class InfusionStationBlockEntityRenderer extends TileEntityRenderer
 	@Override
 	public void render(InfusionStationBlockEntity blockEntity, float partialTick, MatrixStack pose, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay)
 	{
-		InfusionStationInventory inventory = blockEntity.getItemHandler();
-		boolean hasBottle = !inventory.getBottle().isEmpty();
-		boolean hasPotion = !inventory.getPotion().isEmpty();
-		boolean hasFluid = inventory.hasInfusionFluid();
-		boolean hasFood = !inventory.getFood().isEmpty();
+		IItemHandler inventory = blockEntity.getItemHandler();
+		Effect effect = blockEntity.getEffect();
+		int effectAmount = blockEntity.getEffectAmount();
 
-		int color = inventory.getInfusionFluid().getColor();
+		boolean hasBottle = !inventory.getStackInSlot(InfusionStationBlockEntity.SLOT_BOTTLE).isEmpty();
+		boolean hasPotion = !inventory.getStackInSlot(InfusionStationBlockEntity.SLOT_POTION).isEmpty();
+		boolean hasFluid = effect != null && effectAmount > 0;
+		boolean hasFood = !inventory.getStackInSlot(InfusionStationBlockEntity.SLOT_FOOD).isEmpty();
+
+		int color = InfusionStationBlockEntity.getColor(effect, blockEntity.getEffectAmplifier());
 
 		model.setUpForRender(hasPotion, hasBottle, hasFluid, hasFood, color);
 		pose.pushPose();
 
 		BlockState blockState = blockEntity.getBlockState();
-		Direction facing = blockState.getValue(InfusionStationBlock.FACING);
+		Direction facing = blockState.getValue(InfusionStationBlock.FACING_4_WAY);
 
 		pose.translate(.5D, .5D, .5D);
 		pose.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
@@ -78,21 +80,13 @@ public final class InfusionStationBlockEntityRenderer extends TileEntityRenderer
 		boolean hasPotion = false;
 		int potionColor = 0x720F0F;
 
-		CompoundNBT stackTag = stack.getTag();
+		Effect effect = blockEntity.getEffect();
+		int effectAmount = blockEntity.getEffectAmount();
 
-		if(stackTag != null && stackTag.contains(InfusionStationBlockEntity.NBT_INVENTORY, Constants.NBT.TAG_COMPOUND))
+		if(effect != null && effectAmount > 0)
 		{
-			CompoundNBT inventoryTag = stackTag.getCompound(InfusionStationBlockEntity.NBT_INVENTORY);
-
-			if(inventoryTag.contains(InfusionStationInventory.NBT_INFUSION_FLUID, Constants.NBT.TAG_COMPOUND))
-			{
-				CompoundNBT fluidTag = inventoryTag.getCompound(InfusionStationInventory.NBT_INFUSION_FLUID);
-				InfusionStationInventory.InfusionFluid fluid = new InfusionStationInventory.InfusionFluid(fluidTag);
-				hasPotion = !fluid.isEmpty();
-
-				if(hasPotion)
-					potionColor = fluid.getColor();
-			}
+			hasPotion = true;
+			potionColor = InfusionStationBlockEntity.getColor(effect, blockEntity.getEffectAmplifier());
 		}
 
 		model.setUpForRender(hasPotion, hasPotion, hasPotion, true, potionColor);

@@ -7,8 +7,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.EffectUtils;
 import net.minecraft.potion.PotionUtils;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.StringUtils;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.util.Constants;
@@ -16,33 +18,27 @@ import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import xyz.apex.forge.apexcore.lib.net.NetworkManager;
 import xyz.apex.forge.apexcore.lib.util.EventBusHelper;
-import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
-import xyz.apex.forge.infusedfoods.block.entity.InfusionStationInventory;
 import xyz.apex.forge.infusedfoods.init.IFRegistry;
-import xyz.apex.forge.infusedfoods.network.PacketSyncInfusionData;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+
+import static xyz.apex.forge.apexcore.revamp.block.entity.BaseBlockEntity.NBT_APEX;
+import static xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity.*;
 
 @Mod(InfusedFoods.ID)
 public final class InfusedFoods
 {
 	public static final String ID = "infusedfoods";
-	public static final String NETWORK_VERSION = "1";
-	public static final NetworkManager NETWORK = new NetworkManager(ID, "network", NETWORK_VERSION);
 
 	public InfusedFoods()
 	{
 		IFRegistry.bootstrap();
-
 		EventBusHelper.addListener(LivingEntityUseItemEvent.Finish.class, this::onItemUseFinish);
-
-		EventBusHelper.addEnqueuedListener(FMLCommonSetupEvent.class, event -> NETWORK.registerPacket(PacketSyncInfusionData.class));
-
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> Client::new);
 	}
 
@@ -80,30 +76,20 @@ public final class InfusedFoods
 		return !stack.isEmpty() && stack.isEdible();
 	}
 
-	public static void appendPotionEffectTooltips(InfusionStationInventory.InfusionFluid fluid, List<ITextComponent> tooltip)
+	public static void appendPotionEffectTooltips(@Nullable Effect effect, int amplifier, int duration, List<ITextComponent> tooltip)
 	{
-		EffectInstance effectInstance = fluid.toEffectInstance();
-
-		if(effectInstance != null)
+		if(effect != null)
 		{
-			Effect effect = effectInstance.getEffect();
-			IFormattableTextComponent potionName = new TranslationTextComponent(effectInstance.getDescriptionId());
-
-			int amplifier = fluid.getAmplifier();
-			int duration = fluid.getDuration();
+			IFormattableTextComponent potionName = new TranslationTextComponent(effect.getDescriptionId());
 
 			if(amplifier > 0)
 				potionName = new TranslationTextComponent("potion.withAmplifier", potionName, new TranslationTextComponent("potion.potency." + amplifier));
 
 			if(duration > 20)
 			{
-				if(effectInstance.isNoCounter())
-					potionName = new StringTextComponent("**:**");
-				else
-				{
-					String durationFormat = EffectUtils.formatDuration(effectInstance, 1F);
-					potionName = new TranslationTextComponent("potion.withDuration", potionName, durationFormat);
-				}
+				int i = MathHelper.floor((float) duration);
+				String durationFormat = StringUtils.formatTickDuration(i);
+				potionName = new TranslationTextComponent("potion.withDuration", potionName, durationFormat);
 			}
 
 			tooltip.add(potionName.withStyle(effect.getCategory().getTooltipFormatting()));
@@ -131,8 +117,11 @@ public final class InfusedFoods
 
 					if(d0 > 0D)
 						tooltip.add(new TranslationTextComponent("attribute.modifier.plus." + operation.toValue(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(d1), new TranslationTextComponent(attribute.getDescriptionId())).withStyle(TextFormatting.BLUE));
-					else
+					else if(d0 < 0D)
+					{
+						d1 = d1 * -1D;
 						tooltip.add(new TranslationTextComponent("attribute.modifier.take." + operation.toValue(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(d1), new TranslationTextComponent(attribute.getDescriptionId())).withStyle(TextFormatting.BLUE));
+					}
 				});
 			}
 		}
@@ -142,15 +131,22 @@ public final class InfusedFoods
 	{
 		CompoundNBT stackTag = stack.getTag();
 
-		if(stackTag != null && stackTag.contains(InfusionStationBlockEntity.NBT_INVENTORY, Constants.NBT.TAG_COMPOUND))
+		if(stackTag != null && stackTag.contains(NBT_APEX, Constants.NBT.TAG_COMPOUND))
 		{
-			CompoundNBT inventoryTag = stackTag.getCompound(InfusionStationBlockEntity.NBT_INVENTORY);
+			CompoundNBT apexTag = stackTag.getCompound(NBT_APEX);
 
-			if(inventoryTag.contains(InfusionStationInventory.NBT_INFUSION_FLUID, Constants.NBT.TAG_COMPOUND))
+			if(apexTag.contains(NBT_INFUSION_FLUID, Constants.NBT.TAG_COMPOUND))
 			{
-				CompoundNBT fluidTag = inventoryTag.getCompound(InfusionStationInventory.NBT_INFUSION_FLUID);
-				InfusionStationInventory.InfusionFluid fluid = new InfusionStationInventory.InfusionFluid(fluidTag);
-				appendPotionEffectTooltips(fluid, tooltip);
+				CompoundNBT fluidTag = apexTag.getCompound(NBT_INFUSION_FLUID);
+
+				ResourceLocation effectRegistryName = new ResourceLocation(fluidTag.getString(NBT_EFFECT));
+
+				Effect effect = ForgeRegistries.POTIONS.getValue(effectRegistryName);
+				// int effectAmount = fluidTag.getInt(NBT_AMOUNT);
+				int effectDuration = fluidTag.getInt(NBT_DURATION);
+				int effectAmplifier = fluidTag.getInt(NBT_AMPLIFIER);
+
+				appendPotionEffectTooltips(effect, effectAmplifier, effectDuration, tooltip);
 			}
 		}
 	}

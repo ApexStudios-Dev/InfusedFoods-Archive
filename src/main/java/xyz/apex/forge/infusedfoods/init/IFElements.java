@@ -15,7 +15,6 @@ import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTable;
 import net.minecraft.loot.functions.CopyNbt;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.IntArray;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.client.model.generators.ModelBuilder;
@@ -26,7 +25,6 @@ import net.minecraftforge.fml.DatagenModLoader;
 
 import xyz.apex.forge.infusedfoods.block.InfusionStationBlock;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
-import xyz.apex.forge.infusedfoods.block.entity.InfusionStationInventory;
 import xyz.apex.forge.infusedfoods.client.IFItemStackBlockEntityRenderer;
 import xyz.apex.forge.infusedfoods.client.renderer.InfusionStationBlockEntityRenderer;
 import xyz.apex.forge.infusedfoods.client.screen.InfusionStationContainerScreen;
@@ -36,6 +34,7 @@ import xyz.apex.forge.utility.registrator.entry.BlockEntry;
 import xyz.apex.forge.utility.registrator.entry.ContainerEntry;
 import xyz.apex.forge.utility.registrator.entry.ItemEntry;
 
+import static xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity.*;
 import static xyz.apex.forge.utility.registrator.provider.RegistrateLangExtProvider.EN_GB;
 
 public final class IFElements
@@ -72,9 +71,8 @@ public final class IFElements
 							.add(ItemLootEntry.lootTableItem(block))
 							.apply(CopyNbt
 									.copyData(CopyNbt.Source.BLOCK_ENTITY)
-									.copy(InfusionStationBlockEntity.NBT_BLAZE_FUEL, InfusionStationBlockEntity.NBT_BLAZE_FUEL)
-									.copy(InfusionStationBlockEntity.NBT_CUSTOM_NAME, InfusionStationBlockEntity.NBT_CUSTOM_NAME)
-									.copy(InfusionStationBlockEntity.NBT_INVENTORY + '.' + InfusionStationInventory.NBT_INFUSION_FLUID, InfusionStationBlockEntity.NBT_INVENTORY + '.' + InfusionStationInventory.NBT_INFUSION_FLUID)
+									.copy(buildNbtPath(NBT_APEX, NBT_INFUSION_FLUID), buildNbtPath(NBT_APEX, NBT_INFUSION_FLUID))
+									.copy(buildNbtPath(NBT_APEX, NBT_BLAZE_FUEL), buildNbtPath(NBT_APEX, NBT_BLAZE_FUEL))
 							)
 					))
 			))
@@ -158,7 +156,7 @@ public final class IFElements
 	.register();
 
 	public static final ContainerEntry<InfusionStationContainer> INFUSION_STATION_CONTAINER = REGISTRY
-			.container("infusion_station", (containerType, windowId, playerInventory, buffer) -> new InfusionStationContainer(containerType, windowId, playerInventory, new InfusionStationInventory(), new IntArray(InfusionStationBlockEntity.DATA_SLOT_COUNT)), () -> InfusionStationContainerScreen::new)
+			.container("infusion_station", InfusionStationContainer::new, () -> InfusionStationContainerScreen::new)
 			.register();
 
 	public static final ItemEntry<BlockItem> INFUSION_STATION_BLOCK_ITEM = ItemEntry.cast(INFUSION_STATION_BLOCK.getSibling(Item.class));
@@ -166,5 +164,10 @@ public final class IFElements
 
 	static void bootstrap()
 	{
+	}
+
+	private static String buildNbtPath(String... paths)
+	{
+		return String.join(".", paths);
 	}
 }

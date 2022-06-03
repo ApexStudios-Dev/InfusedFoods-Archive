@@ -1,341 +1,201 @@
 package xyz.apex.forge.infusedfoods.block.entity;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.IContainerListener;
-import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.IIntArray;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.common.capabilities.Capability;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import xyz.apex.forge.apexcore.lib.block.entity.BaseBlockEntity;
-import xyz.apex.forge.apexcore.lib.util.INameableMutable;
-import xyz.apex.forge.infusedfoods.InfusedFoods;
-import xyz.apex.forge.infusedfoods.container.InfusionStationContainer;
-import xyz.apex.forge.infusedfoods.init.IFElements;
-import xyz.apex.forge.infusedfoods.network.PacketSyncInfusionData;
+import xyz.apex.forge.apexcore.revamp.block.entity.InventoryBlockEntity;
+import xyz.apex.forge.apexcore.revamp.net.packet.SyncContainerPacket;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-// TODO: Make generic InventoryBlockEntity inside of ApexCore
-public final class InfusionStationBlockEntity extends BaseBlockEntity implements INamedContainerProvider, INameableMutable, IContainerListener, ITickableTileEntity
+public final class InfusionStationBlockEntity extends InventoryBlockEntity implements ITickableTileEntity
 {
-	public static final String NBT_INVENTORY = "Inventory";
-	public static final String NBT_CUSTOM_NAME = "CustomName";
 	public static final String NBT_INFUSION_TIME = "InfusionTime";
 	public static final String NBT_BLAZE_FUEL = "BlazeFuel";
 
-	public static final int DATA_SLOT_INFUSE_TIME = 0;
-	public static final int DATA_SLOT_BLAZE_FUEL = 1;
-	public static final int DATA_SLOT_COUNT = 2;
+	public static final String NBT_INFUSION_FLUID = "InfusionFluid";
+	public static final String NBT_EFFECT = "Effect";
+	public static final String NBT_AMOUNT = "Amount";
+	public static final String NBT_DURATION = "Duration";
+	public static final String NBT_AMPLIFIER = "Amplifier";
+
+	public static final int SLOT_COUNT = 5;
+
+	public static final int SLOT_POTION = 0;
+	public static final int SLOT_BLAZE = 1;
+	public static final int SLOT_FOOD = 2;
+	public static final int SLOT_RESULT = 3;
+	public static final int SLOT_BOTTLE = 4;
 
 	public static final int INFUSION_TIME = 400; // same time as brewing stand
-
-	@Nullable private InfusionStationInventory inventory = null;
-	private final LazyOptional<InfusionStationInventory> itemHandlerCapability = LazyOptional.of(this::createItemHandler);
-	@Nullable private ITextComponent customName = null;
-	private final IIntArray dataAccess = new IIntArray() {
-		@Override
-		public int get(int index)
-		{
-			if(index == DATA_SLOT_INFUSE_TIME)
-				return infuseTime;
-			if(index == DATA_SLOT_BLAZE_FUEL)
-				return blazeFuel;
-			return 0;
-		}
-
-		@Override
-		public void set(int index, int value)
-		{
-			if(index == DATA_SLOT_BLAZE_FUEL)
-				blazeFuel = value;
-			else if(index == DATA_SLOT_INFUSE_TIME)
-				infuseTime = value;
-		}
-
-		@Override
-		public int getCount()
-		{
-			return DATA_SLOT_COUNT;
-		}
-	};
 
 	private int infuseTime = 0;
 	private int blazeFuel = 0;
 
-	public InfusionStationBlockEntity(TileEntityType<?> blockEntityType)
+	@Nullable private Effect effect;
+	private int effectAmount;
+	private int effectDuration;
+	private int effectAmplifier;
+
+	public InfusionStationBlockEntity(TileEntityType<? extends InfusionStationBlockEntity> blockEntityType)
 	{
-		super(blockEntityType);
-
-		itemHandlerCapability.addListener(opt -> inventory = null);
-	}
-
-	private InfusionStationInventory createItemHandler()
-	{
-		if(inventory == null)
-			inventory = new InfusionStationInventory(this::setChanged);
-		return inventory;
-	}
-
-	public InfusionStationInventory getItemHandler()
-	{
-		return itemHandlerCapability.orElseGet(this::createItemHandler);
-	}
-
-	public void loadFromItemStack(CompoundNBT tagCompound)
-	{
-		if(tagCompound.contains(NBT_BLAZE_FUEL, Constants.NBT.TAG_ANY_NUMERIC))
-		{
-			blazeFuel = tagCompound.getInt(NBT_BLAZE_FUEL);
-			setChanged();
-		}
-
-		if(tagCompound.contains(NBT_CUSTOM_NAME, Constants.NBT.TAG_STRING))
-		{
-			String customNameJson = tagCompound.getString(NBT_CUSTOM_NAME);
-			customName = ITextComponent.Serializer.fromJson(customNameJson);
-			setChanged();
-		}
-
-		if(tagCompound.contains(NBT_INVENTORY, Constants.NBT.TAG_COMPOUND))
-		{
-			inventory = getItemHandler();
-			CompoundNBT inventoryTag = tagCompound.getCompound(NBT_INVENTORY);
-
-			if(inventoryTag.contains(InfusionStationInventory.NBT_INFUSION_FLUID, Constants.NBT.TAG_COMPOUND))
-			{
-				CompoundNBT fluidTag = inventoryTag.getCompound(InfusionStationInventory.NBT_INFUSION_FLUID);
-				inventory.infusionFluid = new InfusionStationInventory.InfusionFluid(fluidTag);
-				inventory.onFluidChanged.run();
-			}
-		}
-	}
-
-	@Override
-	public Container createMenu(int windowId, PlayerInventory playerInventory, PlayerEntity player)
-	{
-		InfusionStationContainer drawerContainer = new InfusionStationContainer(IFElements.INFUSION_STATION_CONTAINER.asContainerType(), windowId, playerInventory, getItemHandler(), dataAccess);
-		drawerContainer.addSlotListener(this);
-		return drawerContainer;
-	}
-
-	@Override
-	public void setCustomName(@Nullable ITextComponent customName)
-	{
-		this.customName = customName;
-	}
-
-	@Override
-	public void load(BlockState blockState, CompoundNBT tagCompound)
-	{
-		inventory = null;
-		customName = null;
-		infuseTime = 0;
-		blazeFuel = 0;
-
-		if(tagCompound.contains(NBT_INVENTORY, Constants.NBT.TAG_COMPOUND))
-		{
-			itemHandlerCapability.invalidate();
-			inventory = new InfusionStationInventory(this::setChanged);
-			CompoundNBT inventoryTag = tagCompound.getCompound(NBT_INVENTORY);
-			inventory.deserializeNBT(inventoryTag);
-		}
-
-		if(tagCompound.contains(NBT_CUSTOM_NAME, Constants.NBT.TAG_STRING))
-		{
-			String customNameJson = tagCompound.getString(NBT_CUSTOM_NAME);
-			customName = ITextComponent.Serializer.fromJson(customNameJson);
-		}
-
-		if(tagCompound.contains(NBT_INFUSION_TIME, Constants.NBT.TAG_ANY_NUMERIC))
-			infuseTime = tagCompound.getInt(NBT_INFUSION_TIME);
-		if(tagCompound.contains(NBT_BLAZE_FUEL, Constants.NBT.TAG_ANY_NUMERIC))
-			blazeFuel = tagCompound.getInt(NBT_BLAZE_FUEL);
-
-		super.load(blockState, tagCompound);
-	}
-
-	@Override
-	public CompoundNBT save(CompoundNBT tagCompound)
-	{
-		if(inventory != null)
-		{
-			CompoundNBT inventoryTag = inventory.serializeNBT();
-			tagCompound.put(NBT_INVENTORY, inventoryTag);
-		}
-
-		if(customName != null)
-		{
-			String customNameJson = ITextComponent.Serializer.toJson(customName);
-			tagCompound.putString(NBT_CUSTOM_NAME, customNameJson);
-		}
-
-		if(infuseTime > 0)
-			tagCompound.putInt(NBT_INFUSION_TIME, infuseTime);
-		if(blazeFuel > 0)
-			tagCompound.putInt(NBT_BLAZE_FUEL, blazeFuel);
-
-		return super.save(tagCompound);
-	}
-
-	@Nonnull
-	@Override
-	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction side)
-	{
-		if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-			return itemHandlerCapability.cast();
-
-		return super.getCapability(capability, side);
+		super(blockEntityType, SLOT_COUNT);
 	}
 
 	@Nullable
-	@Override
-	public ITextComponent getCustomName()
+	public Effect getEffect()
 	{
-		return customName;
+		return effect;
+	}
+
+	public int getEffectAmount()
+	{
+		return effectAmount;
+	}
+
+	public int getEffectDuration()
+	{
+		return effectDuration;
+	}
+
+	public int getEffectAmplifier()
+	{
+		return effectAmplifier;
+	}
+
+	public int getInfuseTime()
+	{
+		return infuseTime;
+	}
+
+	public int getBlazeFuel()
+	{
+		return blazeFuel;
 	}
 
 	@Override
-	public ITextComponent getDisplayName()
+	public CompoundNBT serializeData()
 	{
-		return customName == null ? getName() : customName;
-	}
-
-	@Override
-	public ITextComponent getName()
-	{
-		return new TranslationTextComponent(getBlockState().getBlock().getDescriptionId());
-	}
-
-	@Override
-	public void refreshContainer(Container container, NonNullList<ItemStack> stacks)
-	{
-	}
-
-	@Override
-	public void slotChanged(Container container, int slotIndex, ItemStack stack)
-	{
-		setChanged();
-	}
-
-	@Override
-	public void setContainerData(Container container, int varToUpdate, int newValue)
-	{
-	}
-
-	@Override
-	protected CompoundNBT writeUpdateTag(CompoundNBT tagCompound)
-	{
-		if(inventory != null)
-		{
-			CompoundNBT inventoryTag = inventory.serializeNBT();
-			tagCompound.put(NBT_INVENTORY, inventoryTag);
-		}
-
-		if(customName != null)
-		{
-			String customNameJson = ITextComponent.Serializer.toJson(customName);
-			tagCompound.putString(NBT_CUSTOM_NAME, customNameJson);
-		}
+		CompoundNBT tagCompound = super.serializeData();
 
 		if(infuseTime > 0)
 			tagCompound.putInt(NBT_INFUSION_TIME, infuseTime);
 		if(blazeFuel > 0)
 			tagCompound.putInt(NBT_BLAZE_FUEL, blazeFuel);
 
-		return super.writeUpdateTag(tagCompound);
+		if(effect != null)
+		{
+			CompoundNBT fluidTag = new CompoundNBT();
+			String effectRegistryName = Objects.requireNonNull(effect.getRegistryName()).toString();
+			fluidTag.putString(NBT_EFFECT, effectRegistryName);
+			fluidTag.putInt(NBT_AMOUNT, effectAmount);
+			fluidTag.putInt(NBT_DURATION, effectDuration);
+			fluidTag.putInt(NBT_AMPLIFIER, effectAmplifier);
+			tagCompound.put(NBT_INFUSION_FLUID, fluidTag);
+		}
+
+		return tagCompound;
 	}
 
 	@Override
-	protected void readeUpdateTag(CompoundNBT tagCompound)
+	public void deserializeData(CompoundNBT tagCompound)
 	{
-		inventory = null;
-		customName = null;
-		infuseTime = 0;
-		blazeFuel = 0;
-
-		if(tagCompound.contains(NBT_INVENTORY, Constants.NBT.TAG_COMPOUND))
-		{
-			itemHandlerCapability.invalidate();
-			inventory = new InfusionStationInventory(this::setChanged);
-			CompoundNBT inventoryTag = tagCompound.getCompound(NBT_INVENTORY);
-			inventory.deserializeNBT(inventoryTag);
-		}
-
-		if(tagCompound.contains(NBT_CUSTOM_NAME, Constants.NBT.TAG_STRING))
-		{
-			String customNameJson = tagCompound.getString(NBT_CUSTOM_NAME);
-			customName = ITextComponent.Serializer.fromJson(customNameJson);
-		}
-
 		if(tagCompound.contains(NBT_INFUSION_TIME, Constants.NBT.TAG_ANY_NUMERIC))
 			infuseTime = tagCompound.getInt(NBT_INFUSION_TIME);
 		if(tagCompound.contains(NBT_BLAZE_FUEL, Constants.NBT.TAG_ANY_NUMERIC))
 			blazeFuel = tagCompound.getInt(NBT_BLAZE_FUEL);
 
-		super.readeUpdateTag(tagCompound);
+		if(tagCompound.contains(NBT_INFUSION_FLUID, Constants.NBT.TAG_COMPOUND))
+		{
+			CompoundNBT fluidTag = tagCompound.getCompound(NBT_INFUSION_FLUID);
+			ResourceLocation effectRegistryName = new ResourceLocation(fluidTag.getString(NBT_EFFECT));
+
+			effect = ForgeRegistries.POTIONS.getValue(effectRegistryName);
+			effectAmount = fluidTag.getInt(NBT_AMOUNT);
+			effectDuration = fluidTag.getInt(NBT_DURATION);
+			effectAmplifier = fluidTag.getInt(NBT_AMPLIFIER);
+		}
+
+		super.deserializeData(tagCompound);
 	}
 
 	@Override
-	public void setChanged()
+	public void writeContainerSyncData(PacketBuffer buffer)
 	{
-		super.setChanged();
-		markBlockUpdate();
+		boolean flag = effect != null;
+		buffer.writeBoolean(flag);
+
+		if(flag)
+			buffer.writeRegistryId(effect);
+
+		buffer.writeInt(effectAmount);
+		buffer.writeInt(effectAmplifier);
+		buffer.writeInt(effectDuration);
+
+		buffer.writeInt(infuseTime);
+		buffer.writeInt(blazeFuel);
 	}
 
-	private void markBlockUpdate()
+	@Override
+	public void readContainerSyncData(PacketBuffer buffer)
 	{
-		if(level != null && !level.isClientSide())
-		{
-			BlockState blockState = level.getBlockState(worldPosition);
-			level.sendBlockUpdated(worldPosition, blockState, blockState, 3);
+		if(buffer.readBoolean())
+			effect = buffer.readRegistryId();
 
-			CompoundNBT updateTag = getUpdateTag();
-			InfusedFoods.NETWORK.sendTo(new PacketSyncInfusionData(worldPosition, updateTag), PacketDistributor.ALL.noArg());
-		}
+		effectAmount = buffer.readInt();
+		effectAmplifier = buffer.readInt();
+		effectDuration = buffer.readInt();
+
+		infuseTime = buffer.readInt();
+		blazeFuel = buffer.readInt();
 	}
 
 	private boolean canInfuse()
 	{
-		InfusionStationInventory inventory = getItemHandler();
-
-		if(!inventory.hasInfusionFluid())
+		if(effect == null || effectAmount < 0)
 			return false;
 
-		ItemStack food = inventory.getFood();
+		ItemStack food = itemHandler.getStackInSlot(SLOT_FOOD);
 
 		if(food.isEmpty())
 			return false;
 		if(!PotionUtils.getCustomEffects(food).isEmpty())
 			return false;
 
-		ItemStack result = inventory.getResult();
+		ItemStack result = itemHandler.getStackInSlot(SLOT_RESULT);
 
 		if(result.isEmpty())
 			return true;
 		if(!ItemStack.isSame(result, food))
 			return false;
+
+		List<EffectInstance> resultEffects = PotionUtils.getCustomEffects(result);
+
+		if(resultEffects.size() == 1)
+		{
+			EffectInstance effectInstance = resultEffects.get(0);
+
+			if(!Objects.equals(effect, effectInstance.getEffect()))
+				return false;
+			if(effectDuration != effectInstance.getDuration())
+				return false;
+			if(effectAmplifier != effectInstance.getAmplifier())
+				return false;
+		}
 
 		return result.getCount() + 1 < food.getMaxStackSize();
 	}
@@ -346,13 +206,11 @@ public final class InfusionStationBlockEntity extends BaseBlockEntity implements
 		if(level == null)
 			return;
 
-		InfusionStationInventory inventory = getItemHandler();
-
-		ItemStack potionStack = inventory.getPotion();
-		ItemStack foodStack = inventory.getFood();
-		ItemStack blazeStack = inventory.getBlaze();
-		ItemStack resultStack = inventory.getResult();
-		ItemStack bottleStack = inventory.getBottle();
+		ItemStack potionStack = itemHandler.getStackInSlot(SLOT_POTION);
+		ItemStack foodStack = itemHandler.getStackInSlot(SLOT_FOOD);
+		ItemStack blazeStack = itemHandler.getStackInSlot(SLOT_BLAZE);
+		ItemStack resultStack = itemHandler.getStackInSlot(SLOT_RESULT);
+		ItemStack bottleStack = itemHandler.getStackInSlot(SLOT_BOTTLE);
 
 		boolean changed = false;
 
@@ -369,7 +227,7 @@ public final class InfusionStationBlockEntity extends BaseBlockEntity implements
 			changed = true;
 		}
 
-		if(inventory.hasInfusionFluid())
+		if(effect != null && effectAmount > 0)
 		{
 			if(canInfuse())
 			{
@@ -387,26 +245,20 @@ public final class InfusionStationBlockEntity extends BaseBlockEntity implements
 
 						if(infuseTime == 0)
 						{
-							EffectInstance effectInstance = inventory.getInfusionFluid().toEffectInstance();
-
-							if(effectInstance != null)
+							if(resultStack.isEmpty())
 							{
-								if(resultStack.isEmpty())
-								{
-									ItemStack foodToInfuse = foodStack.split(1).copy();
-									foodToInfuse.setCount(1);
-									PotionUtils.setCustomEffects(foodToInfuse, Collections.singletonList(effectInstance));
-
-									inventory.setResult(foodToInfuse);
-								}
-								else
-								{
-									foodStack.shrink(1);
-									resultStack.grow(1);
-								}
-
-								inventory.decrementInfusionFluid(1);
+								ItemStack foodToInfuse = foodStack.split(1).copy();
+								foodToInfuse.setCount(1);
+								PotionUtils.setCustomEffects(foodToInfuse, Collections.singletonList(new EffectInstance(effect, effectDuration, effectAmplifier)));
+								itemHandler.setStackInSlot(SLOT_RESULT, foodToInfuse);
 							}
+							else
+							{
+								foodStack.shrink(1);
+								resultStack.grow(1);
+							}
+
+							effectAmount--;
 						}
 
 						changed = true;
@@ -424,25 +276,56 @@ public final class InfusionStationBlockEntity extends BaseBlockEntity implements
 				if(effects.size() == 1)
 				{
 					EffectInstance effectInstance = effects.get(0);
-					inventory.incrementInfusionFluid(effectInstance);
+					effect = effectInstance.getEffect();
+					effectAmplifier = effectInstance.getAmplifier();
+					effectDuration = effectInstance.getDuration();
+					effectAmount = 5;
 
-					if(inventory.hasInfusionFluid())
-					{
-						inventory.setPotion(ItemStack.EMPTY);
+					itemHandler.setStackInSlot(SLOT_POTION, ItemStack.EMPTY);
 
-						if(bottleStack.isEmpty())
-							inventory.setBottle(Items.GLASS_BOTTLE.getDefaultInstance());
-						else
-							bottleStack.grow(1);
+					if(bottleStack.isEmpty())
+						itemHandler.setStackInSlot(SLOT_BOTTLE, Items.GLASS_BOTTLE.getDefaultInstance());
+					else
+						bottleStack.grow(1);
 
-						infuseTime = 0;
-						changed = true;
-					}
+					infuseTime = 0;
+					changed = true;
 				}
 			}
 		}
 
 		if(changed)
 			setChanged();
+	}
+
+	@Override
+	public void setChanged()
+	{
+		super.setChanged();
+		SyncContainerPacket.sendToClient(this);
+	}
+
+	public static int getColor(@Nullable Effect effect, int amplifier)
+	{
+		if(effect != null)
+		{
+			int l = amplifier + 1;
+
+			if(l == 0)
+				return 0;
+
+			int k = effect.getColor();
+
+			float f = (float) (l * (k >> 16 & 255)) / 255F;
+			float f1 = (float) (l * (k >> 8 & 255)) / 255F;
+			float f2 = (float) (l * (k >> 0 & 255)) / 255F;
+
+			f = f / (float) l * 255F;
+			f1 = f1 / (float) l * 255F;
+			f2 = f2 / (float) l * 255F;
+			return (int) f << 16 | (int) f1 << 8 | (int) f2;
+		}
+
+		return 0x385dc6;
 	}
 }
