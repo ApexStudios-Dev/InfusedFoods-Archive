@@ -1,66 +1,63 @@
 package xyz.apex.forge.infusedfoods.container;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
 
+import xyz.apex.forge.apexcore.revamp.net.packet.SyncContainerPacket;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
-import xyz.apex.forge.infusedfoods.block.entity.InfusionStationInventory;
-import xyz.apex.forge.infusedfoods.container.slot.*;
+import xyz.apex.forge.infusedfoods.init.IFElements;
+
+import javax.annotation.Nonnull;
+import java.util.Objects;
 
 public final class InfusionStationMenu extends AbstractContainerMenu
 {
 	public final Player player;
-	public final InfusionStationInventory itemHandler;
+	public final IItemHandler itemHandler;
+	private final BlockPos pos;
+	public final InfusionStationBlockEntity blockEntity;
 
-	private final ContainerData dataAccess;
-
-	public InfusionStationMenu(MenuType<?> menuType, int windowId, Inventory playerInventory, InfusionStationInventory itemHandler, ContainerData dataAccess)
+	public InfusionStationMenu(MenuType<?> menuType, int windowId, Inventory playerInventory, FriendlyByteBuf buffer)
 	{
 		super(menuType, windowId);
 
-		this.itemHandler = itemHandler;
-		this.dataAccess = dataAccess;
+		pos = buffer.readBlockPos();
+		blockEntity = Objects.requireNonNull(IFElements.INFUSION_STATION_BLOCK_ENTITY.getBlockEntity(playerInventory.player.level, pos));
+
+		this.itemHandler = blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).orElseGet(blockEntity::getItemHandler);
 		player = playerInventory.player;
 
-		addDataSlots(dataAccess);
-
 		// inventory slots
-		addSlot(new SlotInfusionPotion(itemHandler, 27, 8));
-		addSlot(new SlotInfusionBlaze(itemHandler, 46, 8));
-		addSlot(new SlotInfusionFood(itemHandler, 90, 22));
-		addSlot(new SlotInfusionResult(itemHandler, 134, 22));
-		addSlot(new SlotInfusionBottle(itemHandler, 8, 51));
+		addSlot(new PotionSlot());
+		addSlot(new BlazeSlot());
+		addSlot(new FoodSlot());
+		addSlot(new ResultSlot());
+		addSlot(new BottleSlot());
 
 		// player inventory slots
-		for(var i = 0; i < 3; i++)
+		for(int i = 0; i < 3; i++)
 		{
-			for(var j = 0; j < 9; j++)
+			for(int j = 0; j < 9; j++)
 			{
 				addSlot(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
 			}
 		}
 
-		for(var i = 0; i < 9; ++i)
+		for(int i = 0; i < 9; ++i)
 		{
 			addSlot(new Slot(playerInventory, i, 8 + i * 18, 84 + 58));
 		}
-	}
-
-	public int getInfuseTime()
-	{
-		return dataAccess.get(InfusionStationBlockEntity.DATA_SLOT_INFUSE_TIME);
-	}
-
-	public int getBlazeFuel()
-	{
-		return dataAccess.get(InfusionStationBlockEntity.DATA_SLOT_BLAZE_FUEL);
 	}
 
 	@Override
@@ -75,7 +72,7 @@ public final class InfusionStationMenu extends AbstractContainerMenu
 		var stack = ItemStack.EMPTY;
 		var slot = slots.get(slotIndex);
 
-		if(slot != null && slot.hasItem())
+		if(slot.hasItem())
 		{
 			var stack1 = slot.getItem();
 			stack = stack1.copy();
@@ -98,28 +95,88 @@ public final class InfusionStationMenu extends AbstractContainerMenu
 		return stack;
 	}
 
-	public void updateFromNetwork(CompoundTag updateTag)
+	@Override
+	public void broadcastChanges()
 	{
-		if(updateTag.contains(InfusionStationBlockEntity.NBT_INVENTORY, Tag.TAG_COMPOUND))
+		super.broadcastChanges();
+		SyncContainerPacket.sendToClient(blockEntity);
+	}
+
+	private final class PotionSlot extends SlotItemHandler
+	{
+		private PotionSlot()
 		{
-			var inventoryTag = updateTag.getCompound(InfusionStationBlockEntity.NBT_INVENTORY);
-			itemHandler.deserializeNBT(inventoryTag);
+			super(itemHandler, InfusionStationBlockEntity.SLOT_POTION, 27, 8);
 		}
 
-		int infuseTime;
-		int blazeFuel;
+		@Override
+		public boolean mayPlace(@Nonnull ItemStack stack)
+		{
+			if(stack.getItem() != Items.POTION)
+				return false;
 
-		if(updateTag.contains(InfusionStationBlockEntity.NBT_INFUSION_TIME, Tag.TAG_ANY_NUMERIC))
-			infuseTime = updateTag.getInt(InfusionStationBlockEntity.NBT_INFUSION_TIME);
-		else
-			infuseTime = 0;
+			var potion = PotionUtils.getPotion(stack);
+			return potion.getEffects().size() == 1;
+		}
+	}
 
-		if(updateTag.contains(InfusionStationBlockEntity.NBT_BLAZE_FUEL, Tag.TAG_ANY_NUMERIC))
-			blazeFuel = updateTag.getInt(InfusionStationBlockEntity.NBT_BLAZE_FUEL);
-		else
-			blazeFuel = 0;
+	private final class BlazeSlot extends SlotItemHandler
+	{
+		private BlazeSlot()
+		{
+			super(itemHandler, InfusionStationBlockEntity.SLOT_BLAZE, 46, 8);
+		}
 
-		setData(InfusionStationBlockEntity.DATA_SLOT_INFUSE_TIME, infuseTime);
-		setData(InfusionStationBlockEntity.DATA_SLOT_BLAZE_FUEL, blazeFuel);
+		@Override
+		public boolean mayPlace(@Nonnull ItemStack stack)
+		{
+			return stack.getItem() == Items.BLAZE_POWDER;
+		}
+	}
+
+	private final class FoodSlot extends SlotItemHandler
+	{
+		private FoodSlot()
+		{
+			super(itemHandler, InfusionStationBlockEntity.SLOT_FOOD, 90, 22);
+		}
+
+		@Override
+		public boolean mayPlace(@Nonnull ItemStack stack)
+		{
+			if(!stack.isEdible())
+				return false;
+
+			var customEffects = PotionUtils.getCustomEffects(stack);
+			return customEffects.isEmpty();
+		}
+	}
+
+	private final class ResultSlot extends SlotItemHandler
+	{
+		private ResultSlot()
+		{
+			super(itemHandler, InfusionStationBlockEntity.SLOT_RESULT, 134, 22);
+		}
+
+		@Override
+		public boolean mayPlace(@Nonnull ItemStack stack)
+		{
+			return false;
+		}
+	}
+
+	private final class BottleSlot extends SlotItemHandler
+	{
+		private BottleSlot()
+		{
+			super(itemHandler, InfusionStationBlockEntity.SLOT_BOTTLE, 8, 51);
+		}
+
+		@Override
+		public boolean mayPlace(@Nonnull ItemStack stack)
+		{
+			return false;
+		}
 	}
 }
