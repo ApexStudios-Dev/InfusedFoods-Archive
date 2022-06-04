@@ -1,6 +1,5 @@
 package xyz.apex.forge.infusedfoods.client;
 
-
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
@@ -15,6 +14,8 @@ import net.minecraftforge.common.util.Lazy;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.client.renderer.InfusionStationBlockEntityRenderer;
 import xyz.apex.forge.infusedfoods.init.IFElements;
+
+import static xyz.apex.forge.apexcore.revamp.block.entity.BaseBlockEntity.NBT_APEX;
 
 public final class IFItemStackBlockEntityRenderer extends BlockEntityWithoutLevelRenderer
 {
@@ -43,7 +44,9 @@ public final class IFItemStackBlockEntityRenderer extends BlockEntityWithoutLeve
 
 		if(IFElements.INFUSION_STATION_BLOCK_ITEM.isInStack(stack))
 		{
+			var stackTag = stack.getOrCreateTagElement(NBT_APEX);
 			var blockEntity = this.infusionStationBlockEntity.get();
+			blockEntity.deserializeData(stackTag);
 			infusionStationBlockEntityRenderer.renderForGUI(stack, blockEntity, partialTick, pose, buffer, light, overlay, transformType);
 		}
 		else

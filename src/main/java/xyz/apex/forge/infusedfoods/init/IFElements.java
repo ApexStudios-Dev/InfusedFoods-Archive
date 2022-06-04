@@ -7,7 +7,6 @@ import net.minecraft.data.loot.BlockLoot;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -25,9 +24,8 @@ import net.minecraftforge.common.Tags;
 
 import xyz.apex.forge.infusedfoods.block.InfusionStationBlock;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
-import xyz.apex.forge.infusedfoods.block.entity.InfusionStationInventory;
 import xyz.apex.forge.infusedfoods.client.renderer.InfusionStationBlockEntityRenderer;
-import xyz.apex.forge.infusedfoods.client.screen.InfusionStationContainerScreen;
+import xyz.apex.forge.infusedfoods.client.screen.InfusionStationMenuScreen;
 import xyz.apex.forge.infusedfoods.container.InfusionStationMenu;
 import xyz.apex.forge.infusedfoods.item.InfusionStationBlockItem;
 import xyz.apex.forge.utility.registrator.entry.BlockEntityEntry;
@@ -35,6 +33,7 @@ import xyz.apex.forge.utility.registrator.entry.BlockEntry;
 import xyz.apex.forge.utility.registrator.entry.ItemEntry;
 import xyz.apex.forge.utility.registrator.entry.MenuEntry;
 
+import static xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity.*;
 import static xyz.apex.forge.utility.registrator.provider.RegistrateLangExtProvider.EN_GB;
 
 public final class IFElements
@@ -71,9 +70,8 @@ public final class IFElements
 							.add(LootItem.lootTableItem(block))
 							.apply(CopyNbtFunction
 									.copyData(ContextNbtProvider.BLOCK_ENTITY)
-									.copy(InfusionStationBlockEntity.NBT_BLAZE_FUEL, InfusionStationBlockEntity.NBT_BLAZE_FUEL)
-									.copy(InfusionStationBlockEntity.NBT_CUSTOM_NAME, InfusionStationBlockEntity.NBT_CUSTOM_NAME)
-									.copy(InfusionStationBlockEntity.NBT_INVENTORY + '.' + InfusionStationInventory.NBT_INFUSION_FLUID, InfusionStationBlockEntity.NBT_INVENTORY + '.' + InfusionStationInventory.NBT_INFUSION_FLUID)
+									.copy(buildNbtPath(NBT_APEX, NBT_INFUSION_FLUID), buildNbtPath(NBT_APEX, NBT_INFUSION_FLUID))
+									.copy(buildNbtPath(NBT_APEX, NBT_BLAZE_FUEL), buildNbtPath(NBT_APEX, NBT_BLAZE_FUEL))
 							)
 					))
 			))
@@ -100,8 +98,8 @@ public final class IFElements
 
 			.item(InfusionStationBlockItem::new)
 				.model((ctx, provider) -> {
-							ResourceLocation id = ctx.getId();
-							ModelFile.UncheckedModelFile builtInEntity = new ModelFile.UncheckedModelFile("minecraft:builtin/entity");
+							var id = ctx.getId();
+					var builtInEntity = new ModelFile.UncheckedModelFile("minecraft:builtin/entity");
 
 							provider.getBuilder(id.getNamespace() + ":item/" + id.getPath())
 						        .parent(builtInEntity)
@@ -156,8 +154,8 @@ public final class IFElements
 
 	.register();
 
-	public static final MenuEntry<InfusionStationMenu> INFUSION_STATION_CONTAINER = REGISTRY
-			.container("infusion_station", (containerType, windowId, playerInventory, buffer) -> new InfusionStationMenu(containerType, windowId, playerInventory, new InfusionStationInventory(), new SimpleContainerData(InfusionStationBlockEntity.DATA_SLOT_COUNT)), () -> InfusionStationContainerScreen::new)
+	public static final MenuEntry<InfusionStationMenu> INFUSION_STATION_MENU = REGISTRY
+			.container("infusion_station", InfusionStationMenu::new, () -> InfusionStationMenuScreen::new)
 			.register();
 
 	public static final ItemEntry<InfusionStationBlockItem> INFUSION_STATION_BLOCK_ITEM = ItemEntry.cast(INFUSION_STATION_BLOCK.getSibling(Item.class));
@@ -165,5 +163,10 @@ public final class IFElements
 
 	static void bootstrap()
 	{
+	}
+
+	private static String buildNbtPath(String... paths)
+	{
+		return String.join(".", paths);
 	}
 }
