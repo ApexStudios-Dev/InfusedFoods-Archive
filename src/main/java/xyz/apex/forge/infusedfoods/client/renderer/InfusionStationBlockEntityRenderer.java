@@ -4,15 +4,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 
 import xyz.apex.forge.infusedfoods.block.InfusionStationBlock;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
-import xyz.apex.forge.infusedfoods.block.entity.InfusionStationInventory;
 import xyz.apex.forge.infusedfoods.client.renderer.model.InfusionStationModel;
 import xyz.apex.forge.infusedfoods.init.IFElements;
 
@@ -25,47 +24,45 @@ public final class InfusionStationBlockEntityRenderer implements BlockEntityRend
 		model = new InfusionStationModel(ctx);
 	}
 
-	private void renderModel(PoseStack pose, MultiBufferSource buffer, int combinedLight, int combinedOverlay)
-	{
-		var renderType = model.renderType(IFElements.INFUSION_STATION_BLOCK_TEXTURE);
-		var modelBuffer = buffer.getBuffer(renderType);
-		model.renderToBuffer(pose, modelBuffer, combinedLight, combinedOverlay, 1F, 1F, 1F, 1F);
-
-		pose.pushPose();
-		pose.translate(0D, 1D, 0D);
-
-		renderType = model.renderType(IFElements.INFUSION_STATION_BLOCK_TEXTURE_TINT);
-		modelBuffer = buffer.getBuffer(renderType);
-		model.renderToBufferTint(pose, modelBuffer, combinedLight, combinedOverlay, 1F, 1F, 1F, 1F, true);
-
-		pose.popPose();
-
-		pose.popPose();
-	}
-
 	@Override
 	public void render(InfusionStationBlockEntity blockEntity, float partialTick, PoseStack pose, MultiBufferSource buffer, int combinedLight, int combinedOverlay)
 	{
 		var inventory = blockEntity.getItemHandler();
-		var hasBottle = !inventory.getBottle().isEmpty();
-		var hasPotion = !inventory.getPotion().isEmpty();
-		var hasFluid = inventory.hasInfusionFluid();
-		var hasFood = !inventory.getFood().isEmpty();
+		var effect = blockEntity.getEffect();
+		var effectAmount = blockEntity.getEffectAmount();
 
-		var color = inventory.getInfusionFluid().getColor();
+		var hasBottle = !inventory.getStackInSlot(InfusionStationBlockEntity.SLOT_BOTTLE).isEmpty();
+		var hasPotion = !inventory.getStackInSlot(InfusionStationBlockEntity.SLOT_POTION).isEmpty();
+		var hasFluid = effect != null && effectAmount > 0;
+		var hasFood = !inventory.getStackInSlot(InfusionStationBlockEntity.SLOT_FOOD).isEmpty();
+
+		var color = InfusionStationBlockEntity.getColor(effect, blockEntity.getEffectAmplifier());
 
 		model.setUpForRender(hasPotion, hasBottle, hasFluid, hasFood, color);
 		pose.pushPose();
 
 		var blockState = blockEntity.getBlockState();
-		var facing = blockState.getValue(InfusionStationBlock.FACING);
+		var facing = blockState.getValue(InfusionStationBlock.FACING_4_WAY);
 
 		pose.translate(.5D, .5D, .5D);
 		pose.mulPose(Vector3f.YP.rotationDegrees(-facing.toYRot()));
 		pose.mulPose(Vector3f.XP.rotationDegrees(180F));
 		pose.translate(0D, -1D, 0D);
 
-		renderModel(pose, buffer, combinedLight, combinedOverlay);
+		var renderType = RenderType.entityTranslucentCull(IFElements.INFUSION_STATION_BLOCK_TEXTURE);
+		var modelBuffer = buffer.getBuffer(renderType);
+		model.renderToBuffer(pose, modelBuffer, combinedLight, combinedOverlay, 1F, 1F, 1F, 1F);
+
+		pose.pushPose();
+		pose.translate(0D, 1D, 0D);
+
+		renderType = RenderType.entityTranslucentCull(IFElements.INFUSION_STATION_BLOCK_TEXTURE_TINT);
+		modelBuffer = buffer.getBuffer(renderType);
+		model.renderToBufferTint(pose, modelBuffer, combinedLight, combinedOverlay, 1F, 1F, 1F, 1F, true);
+
+		pose.popPose();
+
+		pose.popPose();
 	}
 
 	public void renderForGUI(ItemStack stack, InfusionStationBlockEntity blockEntity, float partialTick, PoseStack pose, MultiBufferSource buffer, int combinedLight, int combinedOverlay, ItemTransforms.TransformType transformType)
@@ -76,21 +73,13 @@ public final class InfusionStationBlockEntityRenderer implements BlockEntityRend
 		var hasPotion = false;
 		var potionColor = 0x720F0F;
 
-		var stackTag = stack.getTag();
+		var effect = blockEntity.getEffect();
+		var effectAmount = blockEntity.getEffectAmount();
 
-		if(stackTag != null && stackTag.contains(InfusionStationBlockEntity.NBT_INVENTORY, Tag.TAG_COMPOUND))
+		if(effect != null && effectAmount > 0)
 		{
-			var inventoryTag = stackTag.getCompound(InfusionStationBlockEntity.NBT_INVENTORY);
-
-			if(inventoryTag.contains(InfusionStationInventory.NBT_INFUSION_FLUID, Tag.TAG_COMPOUND))
-			{
-				var fluidTag = inventoryTag.getCompound(InfusionStationInventory.NBT_INFUSION_FLUID);
-				var fluid = new InfusionStationInventory.InfusionFluid(fluidTag);
-				hasPotion = !fluid.isEmpty();
-
-				if(hasPotion)
-					potionColor = fluid.getColor();
-			}
+			hasPotion = true;
+			potionColor = InfusionStationBlockEntity.getColor(effect, blockEntity.getEffectAmplifier());
 		}
 
 		model.setUpForRender(hasPotion, hasPotion, hasPotion, true, potionColor);
@@ -147,6 +136,19 @@ public final class InfusionStationBlockEntityRenderer implements BlockEntityRend
 			pose.scale(.45F, .45F, .45F);
 		}
 
-		renderModel(pose, buffer, combinedLight, combinedOverlay);
+		var renderType = RenderType.entityTranslucentCull(IFElements.INFUSION_STATION_BLOCK_TEXTURE);
+		var modelBuffer = buffer.getBuffer(renderType);
+		model.renderToBuffer(pose, modelBuffer, combinedLight, combinedOverlay, 1F, 1F, 1F, 1F);
+
+		pose.pushPose();
+		pose.translate(0D, 1D, 0D);
+
+		renderType = RenderType.entityTranslucentCull(IFElements.INFUSION_STATION_BLOCK_TEXTURE_TINT);
+		modelBuffer = buffer.getBuffer(renderType);
+		model.renderToBufferTint(pose, modelBuffer, combinedLight, combinedOverlay, 1F, 1F, 1F, 1F, true);
+
+		pose.popPose();
+
+		pose.popPose();
 	}
 }
