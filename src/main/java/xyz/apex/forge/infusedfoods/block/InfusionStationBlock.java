@@ -76,7 +76,7 @@ public final class InfusionStationBlock extends BaseBlock.WithContainer<Infusion
 	{
 		super.setPlacedBy(level, pos, blockState, placer, stack);
 
-		var blockEntity = getBlockEntity(level, pos);
+		var blockEntity = getBlockEntity(blockState, level, pos);
 		var apexTag = stack.getTagElement(NBT_APEX);
 
 		if(blockEntity != null && apexTag != null)
