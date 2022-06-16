@@ -5,7 +5,7 @@ import org.apache.commons.lang3.Validate;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.fml.ModLoadingContext;
 
-import xyz.apex.forge.infusedfoods.InfusedFoods;
+import xyz.apex.forge.commonality.init.Mods;
 import xyz.apex.forge.utility.registrator.AbstractRegistrator;
 import xyz.apex.java.utility.Lazy;
 
@@ -16,7 +16,7 @@ public final class IFRegistry extends AbstractRegistrator<IFRegistry>
 
 	private IFRegistry()
 	{
-		super(InfusedFoods.ID);
+		super(Mods.INFUSED_FOODS);
 
 		creativeModeTab(() -> CreativeModeTab.TAB_BREWING);
 	}
@@ -26,7 +26,7 @@ public final class IFRegistry extends AbstractRegistrator<IFRegistry>
 		if(bootstrap)
 			return;
 
-		Validate.isTrue(ModLoadingContext.get().getActiveContainer().getModId().equals(InfusedFoods.ID));
+		Validate.isTrue(ModLoadingContext.get().getActiveContainer().getModId().equals(Mods.INFUSED_FOODS));
 		bootstrap = true;
 
 		IFElements.bootstrap();

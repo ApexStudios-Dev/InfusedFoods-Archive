@@ -23,6 +23,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import xyz.apex.forge.apexcore.lib.util.EventBusHelper;
+import xyz.apex.forge.commonality.init.Mods;
 import xyz.apex.forge.infusedfoods.client.renderer.model.InfusionStationModel;
 import xyz.apex.forge.infusedfoods.init.IFRegistry;
 
@@ -33,11 +34,9 @@ import java.util.Map;
 import static xyz.apex.forge.apexcore.revamp.block.entity.BaseBlockEntity.NBT_APEX;
 import static xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity.*;
 
-@Mod(InfusedFoods.ID)
+@Mod(Mods.INFUSED_FOODS)
 public final class InfusedFoods
 {
-	public static final String ID = "infusedfoods";
-
 	public InfusedFoods()
 	{
 		IFRegistry.bootstrap();

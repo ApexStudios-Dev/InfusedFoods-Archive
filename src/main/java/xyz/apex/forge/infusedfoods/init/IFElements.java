@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.data.loot.BlockLoot;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -20,8 +19,9 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.client.model.generators.ModelBuilder;
 import net.minecraftforge.client.model.generators.ModelFile;
-import net.minecraftforge.common.Tags;
 
+import xyz.apex.forge.commonality.init.BlockTags;
+import xyz.apex.forge.commonality.init.ItemTags;
 import xyz.apex.forge.infusedfoods.block.InfusionStationBlock;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.client.renderer.InfusionStationBlockEntityRenderer;
@@ -77,11 +77,11 @@ public final class IFElements
 			))
 			.recipe((ctx, provider) -> ShapedRecipeBuilder
 					.shaped(ctx.get(), 1)
-					.define('B', Tags.Items.RODS_BLAZE)
-					.define('#', Tags.Items.STONE)
+					.define('B', ItemTags.Forge.RODS_BLAZE)
+					.define('#', ItemTags.Forge.STONE)
 					.pattern(" B ")
 					.pattern("###")
-					.unlockedBy("has_blaze_rod", RegistrateRecipeProvider.has(Tags.Items.RODS_BLAZE))
+					.unlockedBy("has_blaze_rod", RegistrateRecipeProvider.has(ItemTags.Forge.RODS_BLAZE))
 					.save(provider, ctx.getId())
 			)
 
@@ -94,7 +94,7 @@ public final class IFElements
 
 			.addRenderType(() -> RenderType::cutout)
 
-			.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+			.tag(BlockTags.Vanilla.MINEABLE_WITH_PICKAXE)
 
 			.item(InfusionStationBlockItem::new)
 				.model((ctx, provider) -> {
