@@ -25,11 +25,11 @@ import xyz.apex.forge.infusedfoods.InfusedFoods;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.container.InfusionStationMenu;
 import xyz.apex.forge.infusedfoods.init.IFElements;
-import xyz.apex.java.utility.nullness.NonnullConsumer;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
 import static xyz.apex.forge.apexcore.revamp.block.entity.BaseBlockEntity.NBT_APEX;
 
@@ -50,7 +50,7 @@ public final class InfusionStationBlock extends BaseBlock.WithContainer<Infusion
 	}
 
 	@Override
-	protected void registerProperties(NonnullConsumer<Property<?>> consumer)
+	protected void registerProperties(Consumer<Property<?>> consumer)
 	{
 		consumer.accept(FACING_4_WAY);
 		consumer.accept(WATERLOGGED);
@@ -104,13 +104,13 @@ public final class InfusionStationBlock extends BaseBlock.WithContainer<Infusion
 	@Override
 	protected BlockEntityType<InfusionStationBlockEntity> getBlockEntityType()
 	{
-		return IFElements.INFUSION_STATION_BLOCK_ENTITY.asBlockEntityType();
+		return IFElements.INFUSION_STATION_BLOCK_ENTITY.get();
 	}
 
 	@Override
 	protected MenuType<InfusionStationMenu> getContainerType()
 	{
-		return IFElements.INFUSION_STATION_MENU.asMenuType();
+		return IFElements.INFUSION_STATION_MENU.get();
 	}
 
 	@Override

@@ -33,7 +33,7 @@ public final class InfusionStationMenu extends AbstractContainerMenu
 		super(menuType, windowId);
 
 		pos = buffer.readBlockPos();
-		blockEntity = Objects.requireNonNull(IFElements.INFUSION_STATION_BLOCK_ENTITY.getBlockEntity(playerInventory.player.level, pos));
+		blockEntity = Objects.requireNonNull(IFElements.INFUSION_STATION_BLOCK_ENTITY.getNullable(playerInventory.player.level, pos));
 
 		this.itemHandler = blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).orElseGet(blockEntity::getItemHandler);
 		player = playerInventory.player;

@@ -23,7 +23,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import xyz.apex.forge.apexcore.lib.util.EventBusHelper;
-import xyz.apex.forge.commonality.init.Mods;
+import xyz.apex.forge.commonality.Mods;
 import xyz.apex.forge.infusedfoods.client.renderer.model.InfusionStationModel;
 import xyz.apex.forge.infusedfoods.init.IFRegistry;
 

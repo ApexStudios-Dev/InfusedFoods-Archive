@@ -18,7 +18,7 @@ import xyz.apex.forge.infusedfoods.init.IFRegistry;
 
 public final class InfusionStationModel extends Model
 {
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(IFRegistry.getInstance().id("infusion_station"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(IFRegistry.INSTANCE.id("infusion_station"), "main");
 
 	private final ModelPart infusionStation;
 	private int potionColor = 0x385dc6;

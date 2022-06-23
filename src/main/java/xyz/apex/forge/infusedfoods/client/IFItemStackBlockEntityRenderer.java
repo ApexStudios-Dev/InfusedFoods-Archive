@@ -26,8 +26,8 @@ public final class IFItemStackBlockEntityRenderer extends BlockEntityWithoutLeve
 
 	private final InfusionStationBlockEntityRenderer infusionStationBlockEntityRenderer;
 	private final Lazy<InfusionStationBlockEntity> infusionStationBlockEntity = Lazy.of(() -> {
-		var blockState = IFElements.INFUSION_STATION_BLOCK.defaultBlockState();
-		return IFElements.INFUSION_STATION_BLOCK_ENTITY.createBlockEntity(BlockPos.ZERO, blockState);
+		var blockState = IFElements.INFUSION_STATION_BLOCK.getDefaultState();
+		return IFElements.INFUSION_STATION_BLOCK_ENTITY.create(BlockPos.ZERO, blockState);
 	});
 
 	private IFItemStackBlockEntityRenderer(BlockEntityRendererProvider.Context ctx)
@@ -42,7 +42,7 @@ public final class IFItemStackBlockEntityRenderer extends BlockEntityWithoutLeve
 	{
 		var partialTick = Minecraft.getInstance().getDeltaFrameTime();
 
-		if(IFElements.INFUSION_STATION_BLOCK_ITEM.isInStack(stack))
+		if(IFElements.INFUSION_STATION_BLOCK_ITEM.isIn(stack))
 		{
 			var stackTag = stack.getOrCreateTagElement(NBT_APEX);
 			var blockEntity = this.infusionStationBlockEntity.get();

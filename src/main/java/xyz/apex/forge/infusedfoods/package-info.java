@@ -1,6 +1,4 @@
-@FieldsAreNonnullByDefault @ParametersAreNonnullByDefault @MethodsReturnNonnullByDefault
+@javax.annotation.ParametersAreNonnullByDefault
+@net.minecraft.MethodsReturnNonnullByDefault
+@com.tterrag.registrate.util.nullness.FieldsAreNonnullByDefault
 package xyz.apex.forge.infusedfoods;
-
-import xyz.apex.java.utility.nullness.FieldsAreNonnullByDefault;
-import xyz.apex.java.utility.nullness.MethodsReturnNonnullByDefault;
-import xyz.apex.java.utility.nullness.ParametersAreNonnullByDefault;

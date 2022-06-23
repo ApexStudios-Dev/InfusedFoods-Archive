@@ -1,14 +1,17 @@
 package xyz.apex.forge.infusedfoods.init;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
+import com.tterrag.registrate.util.entry.BlockEntityEntry;
+import com.tterrag.registrate.util.entry.BlockEntry;
+import com.tterrag.registrate.util.entry.ItemEntry;
+import com.tterrag.registrate.util.entry.MenuEntry;
 
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.data.loot.BlockLoot;
+import net.minecraft.core.Registry;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -20,37 +23,30 @@ import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.client.model.generators.ModelBuilder;
 import net.minecraftforge.client.model.generators.ModelFile;
 
-import xyz.apex.forge.commonality.init.BlockTags;
-import xyz.apex.forge.commonality.init.ItemTags;
+import xyz.apex.forge.commonality.tags.BlockTags;
+import xyz.apex.forge.commonality.tags.ItemTags;
 import xyz.apex.forge.infusedfoods.block.InfusionStationBlock;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.client.renderer.InfusionStationBlockEntityRenderer;
 import xyz.apex.forge.infusedfoods.client.screen.InfusionStationMenuScreen;
 import xyz.apex.forge.infusedfoods.container.InfusionStationMenu;
 import xyz.apex.forge.infusedfoods.item.InfusionStationBlockItem;
-import xyz.apex.forge.utility.registrator.entry.BlockEntityEntry;
-import xyz.apex.forge.utility.registrator.entry.BlockEntry;
-import xyz.apex.forge.utility.registrator.entry.ItemEntry;
-import xyz.apex.forge.utility.registrator.entry.MenuEntry;
 
 import static xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity.*;
-import static xyz.apex.forge.utility.registrator.provider.RegistrateLangExtProvider.EN_GB;
 
 public final class IFElements
 {
-	private static final IFRegistry REGISTRY = IFRegistry.getInstance();
+	public static final ResourceLocation INFUSION_STATION_CONTAINER_SCREEN_TEXTURE = IFRegistry.INSTANCE.id("textures/gui/container/infusion_station.png");
+	public static final ResourceLocation INFUSION_STATION_BLOCK_TEXTURE = IFRegistry.INSTANCE.id("textures/models/infusion_station.png");
+	public static final ResourceLocation INFUSION_STATION_BLOCK_TEXTURE_TINT = IFRegistry.INSTANCE.id("textures/models/infusion_station_tint.png");
 
-	public static final ResourceLocation INFUSION_STATION_CONTAINER_SCREEN_TEXTURE = REGISTRY.id("textures/gui/container/infusion_station.png");
-	public static final ResourceLocation INFUSION_STATION_BLOCK_TEXTURE = REGISTRY.id("textures/models/infusion_station.png");
-	public static final ResourceLocation INFUSION_STATION_BLOCK_TEXTURE_TINT = REGISTRY.id("textures/models/infusion_station_tint.png");
-
-	public static final BlockEntry<InfusionStationBlock> INFUSION_STATION_BLOCK = REGISTRY
-			.block("infusion_station", InfusionStationBlock::new)
+	public static final BlockEntry<InfusionStationBlock> INFUSION_STATION_BLOCK = IFRegistry.INSTANCE
+			.object("infusion_station")
+			.block(InfusionStationBlock::new)
 
 			.lang("Infusion Station")
-			.lang(EN_GB, "Infusion Station")
 
-			.blockState((ctx, provider) -> provider
+			.blockstate((ctx, provider) -> provider
 							.getVariantBuilder(ctx.get())
 							.forAllStates(blockState -> ConfiguredModel
 									.builder()
@@ -64,7 +60,7 @@ public final class IFElements
 			)
 			.loot((lootTables, block) -> lootTables.add(block, LootTable
 					.lootTable()
-					.withPool(BlockLoot.applyExplosionCondition(block, LootPool
+					.withPool(RegistrateBlockLootTables.applyExplosionCondition(block, LootPool
 							.lootPool()
 							.setRolls(ConstantValue.exactly(1))
 							.add(LootItem.lootTableItem(block))
@@ -92,7 +88,7 @@ public final class IFElements
 			.strength(.5F)
 			.lightLevel(blockState -> 1)
 
-			.addRenderType(() -> RenderType::cutout)
+			.addLayer(() -> RenderType::cutout)
 
 			.tag(BlockTags.Vanilla.MINEABLE_WITH_PICKAXE)
 
@@ -154,12 +150,13 @@ public final class IFElements
 
 	.register();
 
-	public static final MenuEntry<InfusionStationMenu> INFUSION_STATION_MENU = REGISTRY
-			.container("infusion_station", InfusionStationMenu::new, () -> InfusionStationMenuScreen::new)
+	public static final MenuEntry<InfusionStationMenu> INFUSION_STATION_MENU = IFRegistry.INSTANCE
+			.object("infusion_station")
+			.menu(InfusionStationMenu::new, () -> InfusionStationMenuScreen::new)
 			.register();
 
-	public static final ItemEntry<InfusionStationBlockItem> INFUSION_STATION_BLOCK_ITEM = ItemEntry.cast(INFUSION_STATION_BLOCK.getSibling(Item.class));
-	public static final BlockEntityEntry<InfusionStationBlockEntity> INFUSION_STATION_BLOCK_ENTITY = BlockEntityEntry.cast(INFUSION_STATION_BLOCK.getSibling(BlockEntityType.class));
+	public static final ItemEntry<InfusionStationBlockItem> INFUSION_STATION_BLOCK_ITEM = ItemEntry.cast(INFUSION_STATION_BLOCK.getSibling(Registry.ITEM_REGISTRY));
+	public static final BlockEntityEntry<InfusionStationBlockEntity> INFUSION_STATION_BLOCK_ENTITY = BlockEntityEntry.cast(INFUSION_STATION_BLOCK.getSibling(Registry.BLOCK_ENTITY_TYPE_REGISTRY));
 
 	static void bootstrap()
 	{

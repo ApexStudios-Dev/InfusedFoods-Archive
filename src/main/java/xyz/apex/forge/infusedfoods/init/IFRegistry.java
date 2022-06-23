@@ -1,17 +1,17 @@
 package xyz.apex.forge.infusedfoods.init;
 
+import com.tterrag.registrate.AbstractRegistrate;
 import org.apache.commons.lang3.Validate;
 
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-import xyz.apex.forge.commonality.init.Mods;
-import xyz.apex.forge.utility.registrator.AbstractRegistrator;
-import xyz.apex.java.utility.Lazy;
+import xyz.apex.forge.commonality.Mods;
 
-public final class IFRegistry extends AbstractRegistrator<IFRegistry>
+public final class IFRegistry extends AbstractRegistrate<IFRegistry>
 {
-	private static final Lazy<IFRegistry> INSTANCE = create(IFRegistry::new);
+	public static final IFRegistry INSTANCE = new IFRegistry();
 	private static boolean bootstrap = false;
 
 	private IFRegistry()
@@ -29,11 +29,7 @@ public final class IFRegistry extends AbstractRegistrator<IFRegistry>
 		Validate.isTrue(ModLoadingContext.get().getActiveContainer().getModId().equals(Mods.INFUSED_FOODS));
 		bootstrap = true;
 
+		INSTANCE.registerEventListeners(FMLJavaModLoadingContext.get().getModEventBus());
 		IFElements.bootstrap();
-	}
-
-	public static IFRegistry getInstance()
-	{
-		return INSTANCE.get();
 	}
 }
