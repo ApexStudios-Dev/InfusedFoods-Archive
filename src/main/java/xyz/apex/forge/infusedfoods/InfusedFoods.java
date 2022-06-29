@@ -1,5 +1,7 @@
 package xyz.apex.forge.infusedfoods;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -27,7 +29,6 @@ import xyz.apex.forge.commonality.Mods;
 import xyz.apex.forge.infusedfoods.client.renderer.model.InfusionStationModel;
 import xyz.apex.forge.infusedfoods.init.IFRegistry;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 

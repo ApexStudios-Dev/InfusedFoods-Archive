@@ -1,5 +1,7 @@
 package xyz.apex.forge.infusedfoods.block;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -26,7 +28,6 @@ import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.container.InfusionStationMenu;
 import xyz.apex.forge.infusedfoods.init.IFElements;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;

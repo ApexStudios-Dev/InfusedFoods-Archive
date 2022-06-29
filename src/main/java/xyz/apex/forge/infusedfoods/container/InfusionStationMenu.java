@@ -1,5 +1,7 @@
 package xyz.apex.forge.infusedfoods.container;
 
+import org.jetbrains.annotations.NotNull;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -18,7 +20,6 @@ import xyz.apex.forge.apexcore.revamp.net.packet.SyncContainerPacket;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.init.IFElements;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
 public final class InfusionStationMenu extends AbstractContainerMenu
@@ -110,7 +111,7 @@ public final class InfusionStationMenu extends AbstractContainerMenu
 		}
 
 		@Override
-		public boolean mayPlace(@Nonnull ItemStack stack)
+		public boolean mayPlace(@NotNull ItemStack stack)
 		{
 			if(stack.getItem() != Items.POTION)
 				return false;
@@ -128,7 +129,7 @@ public final class InfusionStationMenu extends AbstractContainerMenu
 		}
 
 		@Override
-		public boolean mayPlace(@Nonnull ItemStack stack)
+		public boolean mayPlace(@NotNull ItemStack stack)
 		{
 			return stack.getItem() == Items.BLAZE_POWDER;
 		}
@@ -142,7 +143,7 @@ public final class InfusionStationMenu extends AbstractContainerMenu
 		}
 
 		@Override
-		public boolean mayPlace(@Nonnull ItemStack stack)
+		public boolean mayPlace(@NotNull ItemStack stack)
 		{
 			if(!stack.isEdible())
 				return false;
@@ -160,7 +161,7 @@ public final class InfusionStationMenu extends AbstractContainerMenu
 		}
 
 		@Override
-		public boolean mayPlace(@Nonnull ItemStack stack)
+		public boolean mayPlace(@NotNull ItemStack stack)
 		{
 			return false;
 		}
@@ -174,7 +175,7 @@ public final class InfusionStationMenu extends AbstractContainerMenu
 		}
 
 		@Override
-		public boolean mayPlace(@Nonnull ItemStack stack)
+		public boolean mayPlace(@NotNull ItemStack stack)
 		{
 			return false;
 		}

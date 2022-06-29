@@ -1,5 +1,7 @@
 package xyz.apex.forge.infusedfoods.block.entity;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -18,7 +20,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 import xyz.apex.forge.apexcore.revamp.block.entity.InventoryBlockEntity;
 import xyz.apex.forge.apexcore.revamp.net.packet.SyncContainerPacket;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Objects;
 
