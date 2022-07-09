@@ -101,7 +101,7 @@ public final class InfusionStationBlockEntity extends InventoryBlockEntity
 		if(effect != null)
 		{
 			var fluidTag = new CompoundTag();
-			var effectRegistryName = Objects.requireNonNull(effect.getRegistryName()).toString();
+			var effectRegistryName = Objects.requireNonNull(ForgeRegistries.MOB_EFFECTS.getKey(effect)).toString();
 			fluidTag.putString(NBT_EFFECT, effectRegistryName);
 			fluidTag.putInt(NBT_AMOUNT, effectAmount);
 			fluidTag.putInt(NBT_DURATION, effectDuration);
@@ -141,7 +141,7 @@ public final class InfusionStationBlockEntity extends InventoryBlockEntity
 		buffer.writeBoolean(flag);
 
 		if(flag)
-			buffer.writeRegistryId(effect);
+			buffer.writeRegistryId(ForgeRegistries.MOB_EFFECTS, effect);
 
 		buffer.writeInt(effectAmount);
 		buffer.writeInt(effectAmplifier);

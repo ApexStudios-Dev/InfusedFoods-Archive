@@ -3,12 +3,13 @@ package xyz.apex.forge.infusedfoods.client.screen;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import org.apache.commons.lang3.Validate;
 
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
+import xyz.apex.forge.apexcore.revamp.client.screen.BaseMenuScreen;
 import xyz.apex.forge.infusedfoods.InfusedFoods;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.container.InfusionStationMenu;
@@ -16,11 +17,11 @@ import xyz.apex.forge.infusedfoods.init.IFElements;
 
 import java.util.Optional;
 
-public final class InfusionStationMenuScreen extends AbstractContainerScreen<InfusionStationMenu>
+public final class InfusionStationMenuScreen extends BaseMenuScreen<InfusionStationMenu>
 {
 	public InfusionStationMenuScreen(InfusionStationMenu menu, Inventory playerInventory, Component title)
 	{
-		super(menu, playerInventory, title);
+		super(menu, playerInventory, title, IFElements.INFUSION_STATION_CONTAINER_SCREEN_TEXTURE);
 	}
 
 	@Override
@@ -33,11 +34,8 @@ public final class InfusionStationMenuScreen extends AbstractContainerScreen<Inf
 	}
 
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTick)
+	public void renderFg(PoseStack pose, float partialTick, int mouseX, int mouseY)
 	{
-		renderBackground(pose);
-		super.render(pose, mouseX, mouseY, partialTick);
-
 		renderSlotBackground(pose, InfusionStationBlockEntity.SLOT_BLAZE, 240, 0);
 		renderSlotBackground(pose, InfusionStationBlockEntity.SLOT_POTION, 240, 16);
 		renderSlotBackground(pose, InfusionStationBlockEntity.SLOT_FOOD, 240, 33);
@@ -45,18 +43,6 @@ public final class InfusionStationMenuScreen extends AbstractContainerScreen<Inf
 		renderInfusionFluid(pose);
 		renderInfusionProgress(pose);
 		renderInfusionFluidTankOverlay(pose, mouseX, mouseY);
-
-		renderTooltip(pose, mouseX, mouseY);
-	}
-
-	@Override
-	protected void renderBg(PoseStack pose, float partialTick, int mouseX, int mouseY)
-	{
-		RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
-		RenderSystem.setShaderTexture(0, IFElements.INFUSION_STATION_CONTAINER_SCREEN_TEXTURE);
-		var i = (width - imageWidth) / 2;
-		var j = (height - imageHeight) / 2;
-		blit(pose, i, j, 0, 0, imageWidth, imageHeight);
 	}
 
 	private void renderSlotBackground(PoseStack pose, int slotIndex, int backgroundX, int backgroundY)
@@ -84,12 +70,14 @@ public final class InfusionStationMenuScreen extends AbstractContainerScreen<Inf
 		{
 			fillGradient(pose, tankX, tankY, tankX + tankWidth, tankY + tankHeight, 0x80ffffff, 0x80ffffff);
 
-			var effect = menu.blockEntity.getEffect();
+			var blockEntity = menu.getBlockEntity(IFElements.INFUSION_STATION_BLOCK_ENTITY.get());
+			Validate.notNull(blockEntity);
+			var effect = blockEntity.getEffect();
 
 			if(effect != null)
 			{
 				var tooltip = Lists.<Component>newArrayList();
-				InfusedFoods.appendPotionEffectTooltips(effect, menu.blockEntity.getEffectAmplifier(), menu.blockEntity.getEffectDuration(), tooltip);
+				InfusedFoods.appendPotionEffectTooltips(effect, blockEntity.getEffectAmplifier(), blockEntity.getEffectDuration(), tooltip);
 				renderTooltip(pose, tooltip, Optional.empty(), mouseX, mouseY);
 			}
 		}
@@ -97,7 +85,9 @@ public final class InfusionStationMenuScreen extends AbstractContainerScreen<Inf
 
 	private void renderInfusionFluid(PoseStack pose)
 	{
-		var effect = menu.blockEntity.getEffect();
+		var blockEntity = menu.getBlockEntity(IFElements.INFUSION_STATION_BLOCK_ENTITY.get());
+		Validate.notNull(blockEntity);
+		var effect = blockEntity.getEffect();
 
 		if(effect != null)
 		{
@@ -109,8 +99,8 @@ public final class InfusionStationMenuScreen extends AbstractContainerScreen<Inf
 			var fluidWidth = 16;
 			var fluidHeight = 8;
 
-			var fluidAmount = menu.blockEntity.getEffectAmount();
-			var color = InfusionStationBlockEntity.getColor(effect, menu.blockEntity.getEffectAmplifier());
+			var fluidAmount = blockEntity.getEffectAmount();
+			var color = InfusionStationBlockEntity.getColor(effect, blockEntity.getEffectAmplifier());
 
 			RenderSystem.setShaderTexture(0, IFElements.INFUSION_STATION_CONTAINER_SCREEN_TEXTURE);
 
@@ -134,8 +124,11 @@ public final class InfusionStationMenuScreen extends AbstractContainerScreen<Inf
 	{
 		RenderSystem.setShaderTexture(0, IFElements.INFUSION_STATION_CONTAINER_SCREEN_TEXTURE);
 
-		var blazeFuel = menu.blockEntity.getBlazeFuel();
-		var infuseTime = menu.blockEntity.getInfuseTime();
+		var blockEntity = menu.getBlockEntity(IFElements.INFUSION_STATION_BLOCK_ENTITY.get());
+		Validate.notNull(blockEntity);
+
+		var blazeFuel = blockEntity.getBlazeFuel();
+		var infuseTime = blockEntity.getInfuseTime();
 
 		var blazeWidth = Mth.clamp((18 * blazeFuel + 20 - 1) / 20, 0, 18);
 

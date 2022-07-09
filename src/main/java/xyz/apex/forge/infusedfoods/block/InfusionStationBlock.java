@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
@@ -29,7 +30,6 @@ import xyz.apex.forge.infusedfoods.container.InfusionStationMenu;
 import xyz.apex.forge.infusedfoods.init.IFElements;
 
 import java.util.List;
-import java.util.Random;
 import java.util.function.Consumer;
 
 import static xyz.apex.forge.apexcore.revamp.block.entity.BaseBlockEntity.NBT_APEX;
@@ -53,12 +53,13 @@ public final class InfusionStationBlock extends BaseBlock.WithContainer<Infusion
 	@Override
 	protected void registerProperties(Consumer<Property<?>> consumer)
 	{
+		super.registerProperties(consumer);
 		consumer.accept(FACING_4_WAY);
 		consumer.accept(WATERLOGGED);
 	}
 
 	@Override
-	public void animateTick(BlockState blockState, Level level, BlockPos pos, Random rng)
+	public void animateTick(BlockState blockState, Level level, BlockPos pos, RandomSource rng)
 	{
 		if(blockState.hasProperty(WATERLOGGED) && !blockState.getValue(WATERLOGGED))
 		{

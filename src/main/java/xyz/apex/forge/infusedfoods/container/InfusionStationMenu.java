@@ -1,14 +1,12 @@
 package xyz.apex.forge.infusedfoods.container;
 
+import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
@@ -16,27 +14,20 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
-import xyz.apex.forge.apexcore.revamp.net.packet.SyncContainerPacket;
+import xyz.apex.forge.apexcore.revamp.container.BaseMenu;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
-import xyz.apex.forge.infusedfoods.init.IFElements;
 
-import java.util.Objects;
-
-public final class InfusionStationMenu extends AbstractContainerMenu
+public final class InfusionStationMenu extends BaseMenu
 {
 	public final Player player;
 	public final IItemHandler itemHandler;
-	private final BlockPos pos;
-	public final InfusionStationBlockEntity blockEntity;
 
-	public InfusionStationMenu(MenuType<?> menuType, int windowId, Inventory playerInventory, FriendlyByteBuf buffer)
+	public InfusionStationMenu(MenuType<? extends InfusionStationMenu> menuType, int windowId, Inventory playerInventory, FriendlyByteBuf buffer)
 	{
-		super(menuType, windowId);
+		super(menuType, windowId, playerInventory, buffer);
 
-		pos = buffer.readBlockPos();
-		blockEntity = Objects.requireNonNull(IFElements.INFUSION_STATION_BLOCK_ENTITY.getNullable(playerInventory.player.level, pos));
-
-		this.itemHandler = blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).orElseGet(blockEntity::getItemHandler);
+		Validate.notNull(blockEntity);
+		this.itemHandler = blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).resolve().orElseThrow();
 		player = playerInventory.player;
 
 		// inventory slots
@@ -46,61 +37,7 @@ public final class InfusionStationMenu extends AbstractContainerMenu
 		addSlot(new ResultSlot());
 		addSlot(new BottleSlot());
 
-		// player inventory slots
-		for(int i = 0; i < 3; i++)
-		{
-			for(int j = 0; j < 9; j++)
-			{
-				addSlot(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
-			}
-		}
-
-		for(int i = 0; i < 9; ++i)
-		{
-			addSlot(new Slot(playerInventory, i, 8 + i * 18, 84 + 58));
-		}
-	}
-
-	@Override
-	public boolean stillValid(Player player)
-	{
-		return player.isAlive() && player.containerMenu == this;
-	}
-
-	@Override
-	public ItemStack quickMoveStack(Player player, int slotIndex)
-	{
-		var stack = ItemStack.EMPTY;
-		var slot = slots.get(slotIndex);
-
-		if(slot.hasItem())
-		{
-			var stack1 = slot.getItem();
-			stack = stack1.copy();
-			var maxIndex = itemHandler.getSlots();
-
-			if(slotIndex < maxIndex)
-			{
-				if(!moveItemStackTo(stack1, maxIndex, this.slots.size(), true))
-					return ItemStack.EMPTY;
-			}
-			else if(!moveItemStackTo(stack1, 0, maxIndex, false))
-				return ItemStack.EMPTY;
-
-			if(stack1.isEmpty())
-				slot.set(ItemStack.EMPTY);
-			else
-				slot.setChanged();
-		}
-
-		return stack;
-	}
-
-	@Override
-	public void broadcastChanges()
-	{
-		super.broadcastChanges();
-		SyncContainerPacket.sendToClient(blockEntity);
+		bindPlayerInventory(this, 8, 84);
 	}
 
 	private final class PotionSlot extends SlotItemHandler

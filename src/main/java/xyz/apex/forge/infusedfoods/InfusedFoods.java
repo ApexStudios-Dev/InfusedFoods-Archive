@@ -6,8 +6,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
@@ -83,16 +81,16 @@ public final class InfusedFoods
 	{
 		if(effect != null)
 		{
-			MutableComponent potionName = new TranslatableComponent(effect.getDescriptionId());
+			MutableComponent potionName = Component.translatable(effect.getDescriptionId());
 
 			if(amplifier > 0)
-				potionName = new TranslatableComponent("potion.withAmplifier", potionName, new TranslatableComponent("potion.potency." + amplifier));
+				potionName = Component.translatable("potion.withAmplifier", potionName, Component.translatable("potion.potency." + amplifier));
 
 			if(duration > 20)
 			{
 				int i = Mth.floor((float) duration);
 				String durationFormat = StringUtil.formatTickDuration(i);
-				potionName = new TranslatableComponent("potion.withDuration", potionName, durationFormat);
+				potionName = Component.translatable("potion.withDuration", potionName, durationFormat);
 			}
 
 			tooltip.add(potionName.withStyle(effect.getCategory().getTooltipFormatting()));
@@ -101,8 +99,8 @@ public final class InfusedFoods
 
 			if(!attributeModifiers.isEmpty())
 			{
-				tooltip.add(TextComponent.EMPTY);
-				tooltip.add(new TranslatableComponent("potion.whenDrank").withStyle(ChatFormatting.DARK_PURPLE));
+				tooltip.add(Component.empty());
+				tooltip.add(Component.translatable("potion.whenDrank").withStyle(ChatFormatting.DARK_PURPLE));
 
 				attributeModifiers.forEach((attribute, attributeModifier) -> {
 					AttributeModifier mod = attributeModifier;
@@ -119,11 +117,11 @@ public final class InfusedFoods
 						d1 = d0 * 100D;
 
 					if(d0 > 0D)
-						tooltip.add(new TranslatableComponent("attribute.modifier.plus." + operation.toValue(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(d1), new TranslatableComponent(attribute.getDescriptionId())).withStyle(ChatFormatting.BLUE));
+						tooltip.add(Component.translatable("attribute.modifier.plus." + operation.toValue(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(attribute.getDescriptionId())).withStyle(ChatFormatting.BLUE));
 					else if(d0 < 0D)
 					{
 						d1 = d1 * -1D;
-						tooltip.add(new TranslatableComponent("attribute.modifier.take." + operation.toValue(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(d1), new TranslatableComponent(attribute.getDescriptionId())).withStyle(ChatFormatting.BLUE));
+						tooltip.add(Component.translatable("attribute.modifier.take." + operation.toValue(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(attribute.getDescriptionId())).withStyle(ChatFormatting.BLUE));
 					}
 				});
 			}

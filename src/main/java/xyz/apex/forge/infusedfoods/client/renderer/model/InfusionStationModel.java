@@ -13,12 +13,13 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 
-import xyz.apex.forge.infusedfoods.init.IFRegistry;
+import xyz.apex.forge.commonality.Mods;
 
 public final class InfusionStationModel extends Model
 {
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(IFRegistry.INSTANCE.id("infusion_station"), "main");
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Mods.INFUSED_FOODS, "infusion_station"), "main");
 
 	private final ModelPart infusionStation;
 	private int potionColor = 0x385dc6;

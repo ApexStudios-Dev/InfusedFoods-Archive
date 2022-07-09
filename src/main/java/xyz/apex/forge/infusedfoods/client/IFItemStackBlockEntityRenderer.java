@@ -21,7 +21,7 @@ public final class IFItemStackBlockEntityRenderer extends BlockEntityWithoutLeve
 {
 	private static final Lazy<BlockEntityWithoutLevelRenderer> INSTANCE = Lazy.of(() -> {
 		var mc = Minecraft.getInstance();
-		return new IFItemStackBlockEntityRenderer(new BlockEntityRendererProvider.Context(mc.getBlockEntityRenderDispatcher(), mc.getBlockRenderer(), mc.getEntityModels(), mc.font));
+		return new IFItemStackBlockEntityRenderer(new BlockEntityRendererProvider.Context(mc.getBlockEntityRenderDispatcher(), mc.getBlockRenderer(), mc.getItemRenderer(), mc.getEntityRenderDispatcher(), mc.getEntityModels(), mc.font));
 	});
 
 	private final InfusionStationBlockEntityRenderer infusionStationBlockEntityRenderer;

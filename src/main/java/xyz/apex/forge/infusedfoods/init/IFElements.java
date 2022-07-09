@@ -8,6 +8,7 @@ import com.tterrag.registrate.util.entry.ItemEntry;
 import com.tterrag.registrate.util.entry.MenuEntry;
 
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.core.Registry;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
@@ -20,9 +21,9 @@ import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
-import net.minecraftforge.client.model.generators.ModelBuilder;
 import net.minecraftforge.client.model.generators.ModelFile;
 
+import xyz.apex.forge.commonality.Mods;
 import xyz.apex.forge.commonality.tags.BlockTags;
 import xyz.apex.forge.commonality.tags.ItemTags;
 import xyz.apex.forge.infusedfoods.block.InfusionStationBlock;
@@ -36,9 +37,9 @@ import static xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntit
 
 public final class IFElements
 {
-	public static final ResourceLocation INFUSION_STATION_CONTAINER_SCREEN_TEXTURE = IFRegistry.INSTANCE.id("textures/gui/container/infusion_station.png");
-	public static final ResourceLocation INFUSION_STATION_BLOCK_TEXTURE = IFRegistry.INSTANCE.id("textures/models/infusion_station.png");
-	public static final ResourceLocation INFUSION_STATION_BLOCK_TEXTURE_TINT = IFRegistry.INSTANCE.id("textures/models/infusion_station_tint.png");
+	public static final ResourceLocation INFUSION_STATION_CONTAINER_SCREEN_TEXTURE = new ResourceLocation(Mods.INFUSED_FOODS, "textures/gui/container/infusion_station.png");
+	public static final ResourceLocation INFUSION_STATION_BLOCK_TEXTURE = new ResourceLocation(Mods.INFUSED_FOODS, "textures/models/infusion_station.png");
+	public static final ResourceLocation INFUSION_STATION_BLOCK_TEXTURE_TINT = new ResourceLocation(Mods.INFUSED_FOODS, "textures/models/infusion_station_tint.png");
 
 	public static final BlockEntry<InfusionStationBlock> INFUSION_STATION_BLOCK = IFRegistry.INSTANCE
 			.object("infusion_station")
@@ -82,11 +83,13 @@ public final class IFElements
 			)
 
 			.initialProperties(Material.METAL)
-			.sound(SoundType.METAL)
-			.noOcclusion()
-			.requiresCorrectToolForDrops()
-			.strength(.5F)
-			.lightLevel(blockState -> 1)
+			.properties(properties -> properties
+					.sound(SoundType.METAL)
+					.noOcclusion()
+					.requiresCorrectToolForDrops()
+					.strength(.5F)
+					.lightLevel(blockState -> 1)
+			)
 
 			.addLayer(() -> RenderType::cutout)
 
@@ -100,42 +103,42 @@ public final class IFElements
 							provider.getBuilder(id.getNamespace() + ":item/" + id.getPath())
 						        .parent(builtInEntity)
 								.transforms()
-									.transform(ModelBuilder.Perspective.THIRDPERSON_RIGHT)
+									.transform(ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND)
 										.rotation(0F, 0F, 0F)
 										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
 									.end()
-									.transform(ModelBuilder.Perspective.THIRDPERSON_LEFT)
+									.transform(ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND)
 										.rotation(0F, 0F, 0F)
 										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
 									.end()
-									.transform(ModelBuilder.Perspective.FIRSTPERSON_RIGHT)
+									.transform(ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND)
 										.rotation(0F, 0F, 0F)
 										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
 									.end()
-									.transform(ModelBuilder.Perspective.FIRSTPERSON_LEFT)
+									.transform(ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND)
 										.rotation(0F, 0F, 0F)
 										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
 									.end()
-									.transform(ModelBuilder.Perspective.HEAD)
+									.transform(ItemTransforms.TransformType.HEAD)
 										.rotation(0F, 0F, 0F)
 										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
 									.end()
-									.transform(ModelBuilder.Perspective.GROUND)
+									.transform(ItemTransforms.TransformType.GROUND)
 										.rotation(0F, 0F, 0F)
 										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
 									.end()
-									.transform(ModelBuilder.Perspective.FIXED)
+									.transform(ItemTransforms.TransformType.FIXED)
 										.rotation(0F, 0F, 0F)
 										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
 									.end()
-									.transform(ModelBuilder.Perspective.GUI)
+									.transform(ItemTransforms.TransformType.GUI)
 										.rotation(0F, 0F, 0F)
 										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
