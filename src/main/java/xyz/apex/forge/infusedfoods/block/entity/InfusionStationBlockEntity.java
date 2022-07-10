@@ -17,8 +17,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import xyz.apex.forge.apexcore.revamp.block.entity.InventoryBlockEntity;
-import xyz.apex.forge.apexcore.revamp.net.packet.SyncContainerPacket;
+import xyz.apex.forge.apexcore.lib.block.entity.InventoryBlockEntity;
+import xyz.apex.forge.apexcore.lib.net.SyncContainerPacket;
 
 import java.util.Collections;
 import java.util.Objects;

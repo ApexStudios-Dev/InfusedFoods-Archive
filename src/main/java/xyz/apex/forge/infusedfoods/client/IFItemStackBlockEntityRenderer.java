@@ -15,7 +15,7 @@ import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.client.renderer.InfusionStationBlockEntityRenderer;
 import xyz.apex.forge.infusedfoods.init.IFElements;
 
-import static xyz.apex.forge.apexcore.revamp.block.entity.BaseBlockEntity.NBT_APEX;
+import static xyz.apex.forge.apexcore.lib.block.entity.BaseBlockEntity.NBT_APEX;
 
 public final class IFItemStackBlockEntityRenderer extends BlockEntityWithoutLevelRenderer
 {

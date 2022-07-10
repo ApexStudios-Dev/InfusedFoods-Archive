@@ -9,7 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
-import xyz.apex.forge.apexcore.revamp.client.screen.BaseMenuScreen;
+import xyz.apex.forge.apexcore.lib.client.screen.BaseMenuScreen;
 import xyz.apex.forge.infusedfoods.InfusedFoods;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.container.InfusionStationMenu;

@@ -14,7 +14,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
-import xyz.apex.forge.apexcore.revamp.container.BaseMenu;
+import xyz.apex.forge.apexcore.lib.container.BaseMenu;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 
 public final class InfusionStationMenu extends BaseMenu
