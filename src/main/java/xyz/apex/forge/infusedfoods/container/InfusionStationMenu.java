@@ -1,7 +1,7 @@
 package xyz.apex.forge.infusedfoods.container;
 
-import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -10,12 +10,13 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
 import xyz.apex.forge.apexcore.lib.container.BaseMenu;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
+
+import java.util.Objects;
 
 public final class InfusionStationMenu extends BaseMenu
 {
@@ -26,8 +27,7 @@ public final class InfusionStationMenu extends BaseMenu
 	{
 		super(menuType, windowId, playerInventory, buffer);
 
-		Validate.notNull(blockEntity);
-		this.itemHandler = blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).resolve().orElseThrow();
+		this.itemHandler = Objects.requireNonNull(getItemHandler());
 		player = playerInventory.player;
 
 		// inventory slots
@@ -38,6 +38,21 @@ public final class InfusionStationMenu extends BaseMenu
 		addSlot(new BottleSlot());
 
 		bindPlayerInventory(this, 8, 84);
+	}
+
+	@Nullable
+	@Override
+	public IItemHandler getItemHandler()
+	{
+		var blockEntity = Objects.requireNonNull(player.level.getBlockEntity(pos));
+		return getItemHandlerFromBlockEntity(blockEntity).resolve().orElse(null);
+	}
+
+	@Override
+	protected void onInventoryChanges()
+	{
+		super.onInventoryChanges();
+		setBlockEntityChanged();
 	}
 
 	private final class PotionSlot extends SlotItemHandler

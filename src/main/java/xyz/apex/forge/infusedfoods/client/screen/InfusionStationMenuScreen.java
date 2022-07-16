@@ -70,7 +70,7 @@ public final class InfusionStationMenuScreen extends BaseMenuScreen<InfusionStat
 		{
 			fillGradient(pose, tankX, tankY, tankX + tankWidth, tankY + tankHeight, 0x80ffffff, 0x80ffffff);
 
-			var blockEntity = menu.getBlockEntity(IFElements.INFUSION_STATION_BLOCK_ENTITY.get());
+			var blockEntity = IFElements.INFUSION_STATION_BLOCK_ENTITY.getNullable(minecraft.level, menu.pos);
 			Validate.notNull(blockEntity);
 			var effect = blockEntity.getEffect();
 
@@ -85,7 +85,7 @@ public final class InfusionStationMenuScreen extends BaseMenuScreen<InfusionStat
 
 	private void renderInfusionFluid(PoseStack pose)
 	{
-		var blockEntity = menu.getBlockEntity(IFElements.INFUSION_STATION_BLOCK_ENTITY.get());
+		var blockEntity = IFElements.INFUSION_STATION_BLOCK_ENTITY.getNullable(minecraft.level, menu.pos);
 		Validate.notNull(blockEntity);
 		var effect = blockEntity.getEffect();
 
@@ -124,7 +124,7 @@ public final class InfusionStationMenuScreen extends BaseMenuScreen<InfusionStat
 	{
 		RenderSystem.setShaderTexture(0, IFElements.INFUSION_STATION_CONTAINER_SCREEN_TEXTURE);
 
-		var blockEntity = menu.getBlockEntity(IFElements.INFUSION_STATION_BLOCK_ENTITY.get());
+		var blockEntity = IFElements.INFUSION_STATION_BLOCK_ENTITY.getNullable(minecraft.level, menu.pos);
 		Validate.notNull(blockEntity);
 
 		var blazeFuel = blockEntity.getBlazeFuel();
