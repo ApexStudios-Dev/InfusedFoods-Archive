@@ -32,7 +32,7 @@ import xyz.apex.forge.infusedfoods.init.IFRegistry;
 import java.util.List;
 import java.util.Map;
 
-import static xyz.apex.forge.apexcore.revamp.block.entity.BaseBlockEntity.NBT_APEX;
+import static xyz.apex.forge.apexcore.lib.block.entity.BaseBlockEntity.NBT_APEX;
 import static xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity.*;
 
 @Mod(Mods.INFUSED_FOODS)

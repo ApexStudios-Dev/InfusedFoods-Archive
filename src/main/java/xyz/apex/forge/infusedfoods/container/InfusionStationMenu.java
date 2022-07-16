@@ -16,7 +16,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
-import xyz.apex.forge.apexcore.revamp.net.packet.SyncContainerPacket;
+import xyz.apex.forge.apexcore.lib.net.packet.SyncContainerPacket;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.init.IFElements;
 
