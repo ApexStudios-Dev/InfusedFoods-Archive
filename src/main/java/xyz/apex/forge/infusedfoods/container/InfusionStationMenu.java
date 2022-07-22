@@ -1,106 +1,110 @@
 package xyz.apex.forge.infusedfoods.container;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
-import xyz.apex.forge.apexcore.lib.net.packet.SyncContainerPacket;
+import xyz.apex.forge.apexcore.lib.container.BaseMenu;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.init.IFElements;
 
 import java.util.Objects;
 
-public final class InfusionStationMenu extends AbstractContainerMenu
+public final class InfusionStationMenu extends BaseMenu
 {
 	public final Player player;
 	public final IItemHandler itemHandler;
-	private final BlockPos pos;
-	public final InfusionStationBlockEntity blockEntity;
 
-	public InfusionStationMenu(MenuType<?> menuType, int windowId, Inventory playerInventory, FriendlyByteBuf buffer)
+	private final DataSlot effectAmount;
+	private final DataSlot effectAmplifier;
+	private final DataSlot effectDuration;
+	private final DataSlot effectId;
+	private final DataSlot infuseTime;
+	private final DataSlot blazeFuel;
+
+	public InfusionStationMenu(MenuType<? extends InfusionStationMenu> menuType, int windowId, Inventory playerInventory, FriendlyByteBuf buffer)
 	{
-		super(menuType, windowId);
+		super(menuType, windowId, playerInventory, buffer);
 
-		pos = buffer.readBlockPos();
-		blockEntity = Objects.requireNonNull(IFElements.INFUSION_STATION_BLOCK_ENTITY.getNullable(playerInventory.player.level, pos));
-
-		this.itemHandler = blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).orElseGet(blockEntity::getItemHandler);
 		player = playerInventory.player;
+		this.itemHandler = Objects.requireNonNull(getItemHandler());
 
-		// inventory slots
 		addSlot(new PotionSlot());
 		addSlot(new BlazeSlot());
 		addSlot(new FoodSlot());
 		addSlot(new ResultSlot());
 		addSlot(new BottleSlot());
 
-		// player inventory slots
-		for(int i = 0; i < 3; i++)
-		{
-			for(int j = 0; j < 9; j++)
-			{
-				addSlot(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
-			}
-		}
+		bindPlayerInventory(this, 8, 84);
 
-		for(int i = 0; i < 9; ++i)
-		{
-			addSlot(new Slot(playerInventory, i, 8 + i * 18, 84 + 58));
-		}
+		var blockEntity = IFElements.INFUSION_STATION_BLOCK_ENTITY.get(player.level, pos).orElseThrow();
+
+		effectAmount = addDataSlot(DataSlot.forContainer(blockEntity, InfusionStationBlockEntity.DATA_SLOT_EFFECT_AMOUNT));
+		effectAmplifier = addDataSlot(DataSlot.forContainer(blockEntity, InfusionStationBlockEntity.DATA_SLOT_EFFECT_AMPLIFIER));
+		effectDuration = addDataSlot(DataSlot.forContainer(blockEntity, InfusionStationBlockEntity.DATA_SLOT_EFFECT_DURATION));
+		effectId = addDataSlot(DataSlot.forContainer(blockEntity, InfusionStationBlockEntity.DATA_SLOT_EFFECT_ID));
+		infuseTime = addDataSlot(DataSlot.forContainer(blockEntity, InfusionStationBlockEntity.DATA_SLOT_INFUSE_TIME));
+		blazeFuel = addDataSlot(DataSlot.forContainer(blockEntity, InfusionStationBlockEntity.DATA_SLOT_BLAZE_FUEL));
+	}
+
+	public int getEffectAmount()
+	{
+		return effectAmount.get();
+	}
+
+	public int getEffectAmplifier()
+	{
+		return effectAmplifier.get();
+	}
+
+	public int getEffectDuration()
+	{
+		return effectDuration.get();
+	}
+
+	public int getInfuseTime()
+	{
+		return infuseTime.get();
+	}
+
+	public int getBlazeFuel()
+	{
+		return blazeFuel.get();
+	}
+
+	@Nullable
+	public MobEffect getEffect()
+	{
+		var effectId = this.effectId.get();
+		return effectId < 0 ? null : Registry.MOB_EFFECT.getHolder(effectId).map(Holder::value).orElse(null);
+	}
+
+	@Nullable
+	@Override
+	public IItemHandler getItemHandler()
+	{
+		var blockEntity = Objects.requireNonNull(player.level.getBlockEntity(pos));
+		return getItemHandlerFromBlockEntity(blockEntity).resolve().orElse(null);
 	}
 
 	@Override
-	public boolean stillValid(Player player)
+	protected void onInventoryChanges()
 	{
-		return player.isAlive() && player.containerMenu == this;
-	}
-
-	@Override
-	public ItemStack quickMoveStack(Player player, int slotIndex)
-	{
-		var stack = ItemStack.EMPTY;
-		var slot = slots.get(slotIndex);
-
-		if(slot.hasItem())
-		{
-			var stack1 = slot.getItem();
-			stack = stack1.copy();
-			var maxIndex = itemHandler.getSlots();
-
-			if(slotIndex < maxIndex)
-			{
-				if(!moveItemStackTo(stack1, maxIndex, this.slots.size(), true))
-					return ItemStack.EMPTY;
-			}
-			else if(!moveItemStackTo(stack1, 0, maxIndex, false))
-				return ItemStack.EMPTY;
-
-			if(stack1.isEmpty())
-				slot.set(ItemStack.EMPTY);
-			else
-				slot.setChanged();
-		}
-
-		return stack;
-	}
-
-	@Override
-	public void broadcastChanges()
-	{
-		super.broadcastChanges();
-		SyncContainerPacket.sendToClient(blockEntity);
+		super.onInventoryChanges();
+		setBlockEntityChanged();
 	}
 
 	private final class PotionSlot extends SlotItemHandler
