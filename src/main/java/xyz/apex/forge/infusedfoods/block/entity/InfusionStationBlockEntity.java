@@ -3,12 +3,14 @@ package xyz.apex.forge.infusedfoods.block.entity;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
@@ -18,12 +20,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import xyz.apex.forge.apexcore.lib.block.entity.InventoryBlockEntity;
-import xyz.apex.forge.apexcore.lib.net.SyncContainerPacket;
 
 import java.util.Collections;
 import java.util.Objects;
 
-public final class InfusionStationBlockEntity extends InventoryBlockEntity
+public final class InfusionStationBlockEntity extends InventoryBlockEntity implements ContainerData
 {
 	public static final String NBT_INFUSION_TIME = "InfusionTime";
 	public static final String NBT_BLAZE_FUEL = "BlazeFuel";
@@ -41,6 +42,14 @@ public final class InfusionStationBlockEntity extends InventoryBlockEntity
 	public static final int SLOT_FOOD = 2;
 	public static final int SLOT_RESULT = 3;
 	public static final int SLOT_BOTTLE = 4;
+
+	public static final int DATA_SLOT_COUNT = 6;
+	public static final int DATA_SLOT_EFFECT_AMOUNT = 0;
+	public static final int DATA_SLOT_EFFECT_AMPLIFIER = 1;
+	public static final int DATA_SLOT_EFFECT_DURATION = 2;
+	public static final int DATA_SLOT_EFFECT_ID = 3;
+	public static final int DATA_SLOT_INFUSE_TIME = 4;
+	public static final int DATA_SLOT_BLAZE_FUEL = 5;
 
 	public static final int INFUSION_TIME = 400; // same time as brewing stand
 
@@ -68,24 +77,9 @@ public final class InfusionStationBlockEntity extends InventoryBlockEntity
 		return effectAmount;
 	}
 
-	public int getEffectDuration()
-	{
-		return effectDuration;
-	}
-
 	public int getEffectAmplifier()
 	{
 		return effectAmplifier;
-	}
-
-	public int getInfuseTime()
-	{
-		return infuseTime;
-	}
-
-	public int getBlazeFuel()
-	{
-		return blazeFuel;
 	}
 
 	@Override
@@ -134,37 +128,6 @@ public final class InfusionStationBlockEntity extends InventoryBlockEntity
 		super.deserializeData(tagCompound);
 	}
 
-	@Override
-	public void writeContainerSyncData(FriendlyByteBuf buffer)
-	{
-		var flag = effect != null;
-		buffer.writeBoolean(flag);
-
-		if(flag)
-			buffer.writeRegistryId(ForgeRegistries.MOB_EFFECTS, effect);
-
-		buffer.writeInt(effectAmount);
-		buffer.writeInt(effectAmplifier);
-		buffer.writeInt(effectDuration);
-
-		buffer.writeInt(infuseTime);
-		buffer.writeInt(blazeFuel);
-	}
-
-	@Override
-	public void readContainerSyncData(FriendlyByteBuf buffer)
-	{
-		if(buffer.readBoolean())
-			effect = buffer.readRegistryId();
-
-		effectAmount = buffer.readInt();
-		effectAmplifier = buffer.readInt();
-		effectDuration = buffer.readInt();
-
-		infuseTime = buffer.readInt();
-		blazeFuel = buffer.readInt();
-	}
-
 	private boolean canInfuse()
 	{
 		if(effect == null || effectAmount < 0)
@@ -199,13 +162,6 @@ public final class InfusionStationBlockEntity extends InventoryBlockEntity
 		}
 
 		return result.getCount() + 1 < food.getMaxStackSize();
-	}
-
-	@Override
-	public void setChanged()
-	{
-		super.setChanged();
-		SyncContainerPacket.sendToClient(this);
 	}
 
 	public static int getColor(@Nullable MobEffect effect, int amplifier)
@@ -324,5 +280,47 @@ public final class InfusionStationBlockEntity extends InventoryBlockEntity
 
 		if(changed)
 			blockEntity.setChanged();
+	}
+
+	@Override
+	public int get(int slot)
+	{
+		return switch(slot) {
+			case DATA_SLOT_EFFECT_AMPLIFIER -> effectAmplifier;
+			case DATA_SLOT_EFFECT_AMOUNT -> effectAmount;
+			case DATA_SLOT_EFFECT_DURATION -> effectDuration;
+			case DATA_SLOT_EFFECT_ID -> effect == null ? -1 : Registry.MOB_EFFECT.getId(effect);
+			case DATA_SLOT_INFUSE_TIME -> infuseTime;
+			case DATA_SLOT_BLAZE_FUEL -> blazeFuel;
+			default -> -1;
+		};
+	}
+
+	@Override
+	public void set(int slot, int value)
+	{
+		switch(slot)
+		{
+			case DATA_SLOT_EFFECT_AMPLIFIER -> effectAmplifier = value;
+			case DATA_SLOT_EFFECT_AMOUNT -> effectAmount = value;
+			case DATA_SLOT_EFFECT_DURATION -> effectDuration = value;
+			case DATA_SLOT_INFUSE_TIME -> infuseTime = value;
+			case DATA_SLOT_BLAZE_FUEL -> blazeFuel = value;
+			case DATA_SLOT_EFFECT_ID -> {
+				if(value >= 0)
+				{
+					effect = Registry.MOB_EFFECT.getHolder(value).map(Holder::value).orElse(null);
+				}
+				else
+					effect = null;
+			}
+			default -> { }
+		}
+	}
+
+	@Override
+	public int getCount()
+	{
+		return DATA_SLOT_COUNT;
 	}
 }

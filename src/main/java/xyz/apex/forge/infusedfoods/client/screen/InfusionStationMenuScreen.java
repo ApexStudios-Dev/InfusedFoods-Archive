@@ -3,7 +3,6 @@ package xyz.apex.forge.infusedfoods.client.screen;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import org.apache.commons.lang3.Validate;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -70,14 +69,12 @@ public final class InfusionStationMenuScreen extends BaseMenuScreen<InfusionStat
 		{
 			fillGradient(pose, tankX, tankY, tankX + tankWidth, tankY + tankHeight, 0x80ffffff, 0x80ffffff);
 
-			var blockEntity = IFElements.INFUSION_STATION_BLOCK_ENTITY.getNullable(minecraft.level, menu.pos);
-			Validate.notNull(blockEntity);
-			var effect = blockEntity.getEffect();
+			var effect = menu.getEffect();
 
 			if(effect != null)
 			{
 				var tooltip = Lists.<Component>newArrayList();
-				InfusedFoods.appendPotionEffectTooltips(effect, blockEntity.getEffectAmplifier(), blockEntity.getEffectDuration(), tooltip);
+				InfusedFoods.appendPotionEffectTooltips(effect, menu.getEffectAmplifier(), menu.getEffectDuration(), tooltip);
 				renderTooltip(pose, tooltip, Optional.empty(), mouseX, mouseY);
 			}
 		}
@@ -85,9 +82,7 @@ public final class InfusionStationMenuScreen extends BaseMenuScreen<InfusionStat
 
 	private void renderInfusionFluid(PoseStack pose)
 	{
-		var blockEntity = IFElements.INFUSION_STATION_BLOCK_ENTITY.getNullable(minecraft.level, menu.pos);
-		Validate.notNull(blockEntity);
-		var effect = blockEntity.getEffect();
+		var effect = menu.getEffect();
 
 		if(effect != null)
 		{
@@ -99,8 +94,8 @@ public final class InfusionStationMenuScreen extends BaseMenuScreen<InfusionStat
 			var fluidWidth = 16;
 			var fluidHeight = 8;
 
-			var fluidAmount = blockEntity.getEffectAmount();
-			var color = InfusionStationBlockEntity.getColor(effect, blockEntity.getEffectAmplifier());
+			var fluidAmount = menu.getEffectAmount();
+			var color = InfusionStationBlockEntity.getColor(effect, menu.getEffectAmplifier());
 
 			RenderSystem.setShaderTexture(0, IFElements.INFUSION_STATION_CONTAINER_SCREEN_TEXTURE);
 
@@ -124,11 +119,8 @@ public final class InfusionStationMenuScreen extends BaseMenuScreen<InfusionStat
 	{
 		RenderSystem.setShaderTexture(0, IFElements.INFUSION_STATION_CONTAINER_SCREEN_TEXTURE);
 
-		var blockEntity = IFElements.INFUSION_STATION_BLOCK_ENTITY.getNullable(minecraft.level, menu.pos);
-		Validate.notNull(blockEntity);
-
-		var blazeFuel = blockEntity.getBlazeFuel();
-		var infuseTime = blockEntity.getInfuseTime();
+		var blazeFuel = menu.getBlazeFuel();
+		var infuseTime = menu.getInfuseTime();
 
 		var blazeWidth = Mth.clamp((18 * blazeFuel + 20 - 1) / 20, 0, 18);
 
