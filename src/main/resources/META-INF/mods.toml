@@ -41,6 +41,7 @@ issueTrackerURL="https://github.com/ApexStudios-Dev/InfusedFoods/issues"
 [[dependencies.infusedfoods]]
 	modId="apexcore"
 	mandatory=true
+	embedded=true
 	versionRange="[6.0.0,7.0.0)"
 	ordering="AFTER"
 	side="BOTH"
