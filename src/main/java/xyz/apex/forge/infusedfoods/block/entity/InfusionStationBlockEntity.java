@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import xyz.apex.forge.apexcore.lib.block.entity.InventoryBlockEntity;
+import xyz.apex.forge.apexcore.lib.util.RegistryHelper;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -95,7 +96,7 @@ public final class InfusionStationBlockEntity extends InventoryBlockEntity imple
 		if(effect != null)
 		{
 			var fluidTag = new CompoundTag();
-			var effectRegistryName = Objects.requireNonNull(ForgeRegistries.MOB_EFFECTS.getKey(effect)).toString();
+			var effectRegistryName = RegistryHelper.getRegistryName(ForgeRegistries.MOB_EFFECTS, effect).toString();
 			fluidTag.putString(NBT_EFFECT, effectRegistryName);
 			fluidTag.putInt(NBT_AMOUNT, effectAmount);
 			fluidTag.putInt(NBT_DURATION, effectDuration);
