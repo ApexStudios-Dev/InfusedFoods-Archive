@@ -10,8 +10,8 @@ issueTrackerURL="https://github.com/ApexStudios-Dev/InfusedFoods/issues"
 	updateJSONURL="https://raw.githubusercontent.com/ApexStudios-Dev/Version/master/infusedfoods.json"
 	displayURL="https://www.apexstudios.dev/infused-foods"
 	logoFile="banner.png"
-	credits="Apex - Programming, FantasyGaming - Texture Artist"
-	authors="Apex, FantasyGaming"
+	credits="Apex - Programming, FantasyGaming - Artist"
+	authors="ApexStudios"
 	description="Add the ability to apply potion effects to foods."
 
 [[dependencies.infusedfoods]]
