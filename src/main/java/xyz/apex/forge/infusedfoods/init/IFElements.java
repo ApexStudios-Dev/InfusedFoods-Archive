@@ -2,10 +2,6 @@ package xyz.apex.forge.infusedfoods.init;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
-import com.tterrag.registrate.util.entry.BlockEntityEntry;
-import com.tterrag.registrate.util.entry.BlockEntry;
-import com.tterrag.registrate.util.entry.ItemEntry;
-import com.tterrag.registrate.util.entry.MenuEntry;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
@@ -23,6 +19,10 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.client.model.generators.ModelFile;
 
+import xyz.apex.forge.apexcore.registrate.entry.BlockEntityEntry;
+import xyz.apex.forge.apexcore.registrate.entry.BlockEntry;
+import xyz.apex.forge.apexcore.registrate.entry.ItemEntry;
+import xyz.apex.forge.apexcore.registrate.entry.MenuEntry;
 import xyz.apex.forge.commonality.Mods;
 import xyz.apex.forge.commonality.tags.BlockTags;
 import xyz.apex.forge.commonality.tags.ItemTags;
@@ -41,13 +41,14 @@ public final class IFElements
 	public static final ResourceLocation INFUSION_STATION_BLOCK_TEXTURE = new ResourceLocation(Mods.INFUSED_FOODS, "textures/models/infusion_station.png");
 	public static final ResourceLocation INFUSION_STATION_BLOCK_TEXTURE_TINT = new ResourceLocation(Mods.INFUSED_FOODS, "textures/models/infusion_station_tint.png");
 
-	public static final BlockEntry<InfusionStationBlock> INFUSION_STATION_BLOCK = IFRegistry.INSTANCE
+	public static final BlockEntry<InfusionStationBlock> INFUSION_STATION_BLOCK = IFRegistry
+			.INSTANCE
 			.object("infusion_station")
 			.block(InfusionStationBlock::new)
 
 			.lang("Infusion Station")
 
-			.blockstate((ctx, provider) -> provider
+			.blockState((ctx, provider) -> provider
 							.getVariantBuilder(ctx.get())
 							.forAllStates(blockState -> ConfiguredModel
 									.builder()
@@ -83,15 +84,13 @@ public final class IFElements
 			)
 
 			.initialProperties(Material.METAL)
-			.properties(properties -> properties
-					.sound(SoundType.METAL)
-					.noOcclusion()
-					.requiresCorrectToolForDrops()
-					.strength(.5F)
-					.lightLevel(blockState -> 1)
-			)
+			.sound(SoundType.METAL)
+			.noOcclusion()
+			.requiresCorrectToolForDrops()
+			.strength(.5F)
+			.lightLevel(blockState -> 1)
 
-			.addLayer(() -> RenderType::cutout)
+			.renderType(() -> RenderType::cutout)
 
 			.tag(BlockTags.Vanilla.MINEABLE_WITH_PICKAXE)
 
@@ -153,10 +152,11 @@ public final class IFElements
 
 	.register();
 
-	public static final MenuEntry<InfusionStationMenu> INFUSION_STATION_MENU = IFRegistry.INSTANCE
+	public static final MenuEntry<InfusionStationMenu> INFUSION_STATION_MENU = IFRegistry
+			.INSTANCE
 			.object("infusion_station")
 			.menu(InfusionStationMenu::new, () -> InfusionStationMenuScreen::new)
-			.register();
+	;
 
 	public static final ItemEntry<InfusionStationBlockItem> INFUSION_STATION_BLOCK_ITEM = ItemEntry.cast(INFUSION_STATION_BLOCK.getSibling(Registry.ITEM_REGISTRY));
 	public static final BlockEntityEntry<InfusionStationBlockEntity> INFUSION_STATION_BLOCK_ENTITY = BlockEntityEntry.cast(INFUSION_STATION_BLOCK.getSibling(Registry.BLOCK_ENTITY_TYPE_REGISTRY));
