@@ -51,7 +51,7 @@ issueTrackerURL="https://github.com/ApexStudios-Dev/InfusedFoods/issues"
 [[dependencies.infusedfoods]]
 	modId="jei"
 	mandatory=false
-	versionRange="[11.2.0.241,)"
+	versionRange="[11.2.0.247,)"
 	ordering="AFTER"
 	side="BOTH"
 	[dependencies.infusedfoods.custom.mc-publish]
