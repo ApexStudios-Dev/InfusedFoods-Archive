@@ -53,6 +53,7 @@ public final class InfusionStationBlock extends BaseBlock.WithContainer<Infusion
 	@Override
 	protected void registerProperties(Consumer<Property<?>> consumer)
 	{
+		super.registerProperties(consumer);
 		consumer.accept(FACING_4_WAY);
 		consumer.accept(WATERLOGGED);
 	}

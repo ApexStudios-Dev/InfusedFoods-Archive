@@ -26,7 +26,7 @@ public final class IFItemStackBlockEntityRenderer extends BlockEntityWithoutLeve
 
 	private final InfusionStationBlockEntityRenderer infusionStationBlockEntityRenderer;
 	private final Lazy<InfusionStationBlockEntity> infusionStationBlockEntity = Lazy.of(() -> {
-		var blockState = IFElements.INFUSION_STATION_BLOCK.getDefaultState();
+		var blockState = IFElements.INFUSION_STATION_BLOCK.defaultBlockState();
 		return IFElements.INFUSION_STATION_BLOCK_ENTITY.create(BlockPos.ZERO, blockState);
 	});
 

@@ -33,11 +33,8 @@ public final class InfusionStationMenuScreen extends BaseMenuScreen<InfusionStat
 	}
 
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTick)
+	public void renderFg(PoseStack pose, float partialTick, int mouseX, int mouseY)
 	{
-		renderBackground(pose);
-		super.render(pose, mouseX, mouseY, partialTick);
-
 		renderSlotBackground(pose, InfusionStationBlockEntity.SLOT_BLAZE, 240, 0);
 		renderSlotBackground(pose, InfusionStationBlockEntity.SLOT_POTION, 240, 16);
 		renderSlotBackground(pose, InfusionStationBlockEntity.SLOT_FOOD, 240, 33);
@@ -45,8 +42,6 @@ public final class InfusionStationMenuScreen extends BaseMenuScreen<InfusionStat
 		renderInfusionFluid(pose);
 		renderInfusionProgress(pose);
 		renderInfusionFluidTankOverlay(pose, mouseX, mouseY);
-
-		renderTooltip(pose, mouseX, mouseY);
 	}
 
 	private void renderSlotBackground(PoseStack pose, int slotIndex, int backgroundX, int backgroundY)
