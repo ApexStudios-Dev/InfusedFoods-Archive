@@ -12,7 +12,7 @@ issueTrackerURL="https://github.com/ApexStudios-Dev/InfusedFoods/issues"
 	logoFile="banner.png"
 	credits="Apex - Programming, FantasyGaming - Artist"
 	authors="ApexStudios"
-	description="Add the ability to apply potion effects to foods."
+	description="Infuse edible foods with any Potion Effect"
 
 [[dependencies.infusedfoods]]
 	modId="forge"
