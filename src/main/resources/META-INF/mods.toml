@@ -33,9 +33,11 @@ issueTrackerURL="https://github.com/ApexStudios-Dev/InfusedFoods/issues"
 [[dependencies.infusedfoods]]
 	modId="commonality"
 	mandatory=true
-	versionRange="[4.0.0,5.0.0)"
+	versionRange="[4.1.0,5.0.0)"
 	ordering="AFTER"
 	side="BOTH"
+	[dependencies.infusedfoods.custom.mc-publish]
+		ignore=true
 	[dependencies.infusedfoods.custom.mc-publish]
 		ignore=true
 [[dependencies.infusedfoods]]
