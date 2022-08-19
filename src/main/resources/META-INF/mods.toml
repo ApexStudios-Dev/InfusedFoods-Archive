@@ -38,8 +38,6 @@ issueTrackerURL="https://github.com/ApexStudios-Dev/InfusedFoods/issues"
 	side="BOTH"
 	[dependencies.infusedfoods.custom.mc-publish]
 		ignore=true
-	[dependencies.infusedfoods.custom.mc-publish]
-		ignore=true
 [[dependencies.infusedfoods]]
 	modId="apexcore"
 	mandatory=true
