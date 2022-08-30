@@ -9,6 +9,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
 import xyz.apex.forge.apexcore.lib.client.screen.BaseMenuScreen;
+import xyz.apex.forge.commonality.SideOnly;
 import xyz.apex.forge.infusedfoods.InfusedFoods;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.container.InfusionStationMenu;
@@ -16,6 +17,7 @@ import xyz.apex.forge.infusedfoods.init.IFElements;
 
 import java.util.Optional;
 
+@SideOnly(SideOnly.Side.CLIENT)
 public final class InfusionStationMenuScreen extends BaseMenuScreen<InfusionStationMenu>
 {
 	public InfusionStationMenuScreen(InfusionStationMenu menu, Inventory playerInventory, Component title)

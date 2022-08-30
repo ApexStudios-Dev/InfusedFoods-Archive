@@ -16,7 +16,9 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 
 import xyz.apex.forge.commonality.Mods;
+import xyz.apex.forge.commonality.SideOnly;
 
+@SideOnly(SideOnly.Side.CLIENT)
 public final class InfusionStationModel extends Model
 {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Mods.INFUSED_FOODS, "infusion_station"), "main");

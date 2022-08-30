@@ -10,11 +10,13 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.item.ItemStack;
 
+import xyz.apex.forge.commonality.SideOnly;
 import xyz.apex.forge.infusedfoods.block.InfusionStationBlock;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.client.renderer.model.InfusionStationModel;
 import xyz.apex.forge.infusedfoods.init.IFElements;
 
+@SideOnly(SideOnly.Side.CLIENT)
 public final class InfusionStationBlockEntityRenderer implements BlockEntityRenderer<InfusionStationBlockEntity>
 {
 	private final InfusionStationModel model;

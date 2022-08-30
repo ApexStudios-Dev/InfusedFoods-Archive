@@ -11,12 +11,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.Lazy;
 
+import xyz.apex.forge.commonality.SideOnly;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.client.renderer.InfusionStationBlockEntityRenderer;
 import xyz.apex.forge.infusedfoods.init.IFElements;
 
 import static xyz.apex.forge.apexcore.lib.block.entity.BaseBlockEntity.NBT_APEX;
 
+@SideOnly(SideOnly.Side.CLIENT)
 public final class IFItemStackBlockEntityRenderer extends BlockEntityWithoutLevelRenderer
 {
 	private static final Lazy<BlockEntityWithoutLevelRenderer> INSTANCE = Lazy.of(() -> {
