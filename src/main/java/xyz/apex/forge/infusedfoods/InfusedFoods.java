@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
@@ -60,13 +61,13 @@ public final class InfusedFoods
 				var effect = effectInstance.getEffect();
 
 				if(effect.isInstantenous())
-					effect.applyInstantenousEffect(entity, entity, entity, effectInstance.getAmplifier(), 1D);
+					effect.applyInstantenousEffect(null, null, entity, effectInstance.getAmplifier(), 1D);
 				else
 				{
 					if(entity.hasEffect(effect))
 						entity.removeEffect(effect);
 
-					entity.addEffect(effectInstance);
+					entity.addEffect(new MobEffectInstance(effectInstance));
 				}
 			}
 		}
