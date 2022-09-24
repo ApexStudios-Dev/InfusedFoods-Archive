@@ -47,7 +47,7 @@ public final class InfusedFoods
 	private void onItemUseFinish(LivingEntityUseItemEvent.Finish event)
 	{
 		var entity = event.getEntity();
-		var stack = event.getResultStack();
+		var stack = event.getItem();
 
 		if(entity.level.isClientSide())
 			return;
