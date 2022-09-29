@@ -26,6 +26,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import xyz.apex.forge.apexcore.lib.util.EventBusHelper;
 import xyz.apex.forge.commonality.Mods;
+import xyz.apex.forge.commonality.trust.TrustManager;
 import xyz.apex.forge.infusedfoods.client.renderer.model.InfusionStationModel;
 import xyz.apex.forge.infusedfoods.init.IFRegistry;
 
@@ -40,6 +41,7 @@ public final class InfusedFoods
 {
 	public InfusedFoods()
 	{
+		TrustManager.throwIfUntrusted(Mods.INFUSED_FOODS);
 		IFRegistry.bootstrap();
 		EventBusHelper.addListener(LivingEntityUseItemEvent.Finish.class, this::onItemUseFinish);
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> Client::new);
