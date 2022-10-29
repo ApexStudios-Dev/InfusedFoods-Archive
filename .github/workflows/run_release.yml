@@ -165,7 +165,7 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_CI_WEBHOOK }}
           title: '❌️ - **${{ needs.vars.outputs.mod_name }}** - _Failed to publish mod_!'
-          color: 0xB50E0E
+          color: 0x7A4DAF
           username: ApexStudios
           avatar_url: https://i.imgur.com/NkQg4yO.png
           nodetail: true
@@ -177,7 +177,7 @@ jobs:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           title: '**${{ needs.vars.outputs.mod_name }}** has been updated to v**_${{ needs.vars.outputs.mod_version }}_**'
           description: 'Compiled for **Minecraft** **_${{ needs.vars.outputs.minecraft_version }}_** and **MinecraftForge** **_${{ needs.vars.outputs.forge_version }}_** (_or newer_)'
-          color: 0xB50E0E
+          color: 0x7A4DAF
           username: ApexStudios
           avatar_url: https://i.imgur.com/NkQg4yO.png
           nodetail: true
@@ -206,6 +206,6 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_CI_WEBHOOK }}
           title: '✅️ - **${{ needs.vars.outputs.mod_name }}** - _Published successfully_!'
-          color: 0xB50E0E
+          color: 0x7A4DAF
           username: ApexStudios
           avatar_url: https://i.imgur.com/NkQg4yO.png
