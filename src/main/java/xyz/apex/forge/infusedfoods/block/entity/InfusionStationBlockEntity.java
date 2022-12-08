@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
@@ -290,7 +290,7 @@ public final class InfusionStationBlockEntity extends InventoryBlockEntity imple
 			case DATA_SLOT_EFFECT_AMPLIFIER -> effectAmplifier;
 			case DATA_SLOT_EFFECT_AMOUNT -> effectAmount;
 			case DATA_SLOT_EFFECT_DURATION -> effectDuration;
-			case DATA_SLOT_EFFECT_ID -> effect == null ? -1 : Registry.MOB_EFFECT.getId(effect);
+			case DATA_SLOT_EFFECT_ID -> effect == null ? -1 : BuiltInRegistries.MOB_EFFECT.getId(effect);
 			case DATA_SLOT_INFUSE_TIME -> infuseTime;
 			case DATA_SLOT_BLAZE_FUEL -> blazeFuel;
 			default -> -1;
@@ -310,7 +310,7 @@ public final class InfusionStationBlockEntity extends InventoryBlockEntity imple
 			case DATA_SLOT_EFFECT_ID -> {
 				if(value >= 0)
 				{
-					effect = Registry.MOB_EFFECT.getHolder(value).map(Holder::value).orElse(null);
+					effect = BuiltInRegistries.MOB_EFFECT.getHolder(value).map(Holder::value).orElse(null);
 				}
 				else
 					effect = null;

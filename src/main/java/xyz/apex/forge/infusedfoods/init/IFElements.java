@@ -1,11 +1,11 @@
 package xyz.apex.forge.infusedfoods.init;
 
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
-import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.SoundType;
@@ -62,7 +62,7 @@ public final class IFElements
 			)
 			.loot((lootTables, block) -> lootTables.add(block, LootTable
 					.lootTable()
-					.withPool(RegistrateBlockLootTables.applyExplosionCondition(block, LootPool
+					.withPool(lootTables.applyExplosionCondition(block, LootPool
 							.lootPool()
 							.setRolls(ConstantValue.exactly(1))
 							.add(LootItem.lootTableItem(block))
@@ -74,7 +74,7 @@ public final class IFElements
 					))
 			))
 			.recipe((ctx, provider) -> ShapedRecipeBuilder
-					.shaped(ctx.get(), 1)
+					.shaped(RecipeCategory.TOOLS, ctx.get(), 1)
 					.define('B', ItemTags.Forge.RODS_BLAZE)
 					.define('#', ItemTags.Forge.STONE)
 					.pattern(" B ")
@@ -158,8 +158,8 @@ public final class IFElements
 			.menu(InfusionStationMenu::new, () -> InfusionStationMenuScreen::new)
 	;
 
-	public static final ItemEntry<InfusionStationBlockItem> INFUSION_STATION_BLOCK_ITEM = ItemEntry.cast(INFUSION_STATION_BLOCK.getSibling(Registry.ITEM_REGISTRY));
-	public static final BlockEntityEntry<InfusionStationBlockEntity> INFUSION_STATION_BLOCK_ENTITY = BlockEntityEntry.cast(INFUSION_STATION_BLOCK.getSibling(Registry.BLOCK_ENTITY_TYPE_REGISTRY));
+	public static final ItemEntry<InfusionStationBlockItem> INFUSION_STATION_BLOCK_ITEM = ItemEntry.cast(INFUSION_STATION_BLOCK.getSibling(Registries.ITEM));
+	public static final BlockEntityEntry<InfusionStationBlockEntity> INFUSION_STATION_BLOCK_ENTITY = BlockEntityEntry.cast(INFUSION_STATION_BLOCK.getSibling(Registries.BLOCK_ENTITY_TYPE));
 
 	static void bootstrap()
 	{

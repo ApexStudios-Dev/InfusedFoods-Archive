@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.player.Inventory;
@@ -89,7 +89,7 @@ public final class InfusionStationMenu extends BaseMenu
 	public MobEffect getEffect()
 	{
 		var effectId = this.effectId.get();
-		return effectId < 0 ? null : Registry.MOB_EFFECT.getHolder(effectId).map(Holder::value).orElse(null);
+		return effectId < 0 ? null : BuiltInRegistries.MOB_EFFECT.getHolder(effectId).map(Holder::value).orElse(null);
 	}
 
 	@Nullable
