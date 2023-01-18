@@ -13,12 +13,10 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.DistExecutor;
@@ -29,7 +27,6 @@ import xyz.apex.forge.apexcore.lib.util.EventBusHelper;
 import xyz.apex.forge.commonality.Mods;
 import xyz.apex.forge.commonality.trust.TrustManager;
 import xyz.apex.forge.infusedfoods.client.renderer.model.InfusionStationModel;
-import xyz.apex.forge.infusedfoods.init.IFElements;
 import xyz.apex.forge.infusedfoods.init.IFRegistry;
 
 import java.util.List;
@@ -46,11 +43,6 @@ public final class InfusedFoods
 		TrustManager.throwIfUntrusted(Mods.INFUSED_FOODS);
 		IFRegistry.bootstrap();
 		EventBusHelper.addListener(LivingEntityUseItemEvent.Finish.class, this::onItemUseFinish);
-		EventBusHelper.addListener(CreativeModeTabEvent.BuildContents.class, event -> {
-			event.registerSimple(CreativeModeTabs.TOOLS_AND_UTILITIES, IFElements.INFUSION_STATION_BLOCK_ITEM);
-			event.registerSimple(CreativeModeTabs.FUNCTIONAL_BLOCKS, IFElements.INFUSION_STATION_BLOCK_ITEM);
-			event.registerSimple(CreativeModeTabs.FOOD_AND_DRINKS, IFElements.INFUSION_STATION_BLOCK_ITEM);
-		});
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> Client::new);
 	}
 
