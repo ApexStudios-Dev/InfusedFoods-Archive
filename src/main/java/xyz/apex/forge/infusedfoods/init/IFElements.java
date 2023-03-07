@@ -1,13 +1,20 @@
 package xyz.apex.forge.infusedfoods.init;
 
+import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
+import com.tterrag.registrate.util.entry.RegistryEntry;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagEntry;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -18,6 +25,7 @@ import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import xyz.apex.forge.apexcore.registrate.entry.BlockEntityEntry;
 import xyz.apex.forge.apexcore.registrate.entry.BlockEntry;
@@ -26,12 +34,15 @@ import xyz.apex.forge.apexcore.registrate.entry.MenuEntry;
 import xyz.apex.forge.commonality.Mods;
 import xyz.apex.forge.commonality.tags.BlockTags;
 import xyz.apex.forge.commonality.tags.ItemTags;
+import xyz.apex.forge.infusedfoods.InfusedFoods;
 import xyz.apex.forge.infusedfoods.block.InfusionStationBlock;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.client.renderer.InfusionStationBlockEntityRenderer;
 import xyz.apex.forge.infusedfoods.client.screen.InfusionStationMenuScreen;
 import xyz.apex.forge.infusedfoods.container.InfusionStationMenu;
 import xyz.apex.forge.infusedfoods.item.InfusionStationBlockItem;
+import xyz.apex.forge.infusedfoods.item.crafting.InfusionCleanseRecipe;
+import xyz.apex.forge.infusedfoods.item.crafting.InfusionHideRecipe;
 
 import static xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity.*;
 
@@ -160,9 +171,21 @@ public final class IFElements
 
 	public static final ItemEntry<InfusionStationBlockItem> INFUSION_STATION_BLOCK_ITEM = ItemEntry.cast(INFUSION_STATION_BLOCK.getSibling(Registries.ITEM));
 	public static final BlockEntityEntry<InfusionStationBlockEntity> INFUSION_STATION_BLOCK_ENTITY = BlockEntityEntry.cast(INFUSION_STATION_BLOCK.getSibling(Registries.BLOCK_ENTITY_TYPE));
+	public static final RegistryEntry<SimpleCraftingRecipeSerializer<InfusionCleanseRecipe>> INFUSION_CLEANSE_RECIPE = IFRegistry.INSTANCE.simple("infusion_cleanse", ForgeRegistries.Keys.RECIPE_SERIALIZERS, () -> new SimpleCraftingRecipeSerializer<>(InfusionCleanseRecipe::new));
+	public static final RegistryEntry<SimpleCraftingRecipeSerializer<InfusionHideRecipe>> INFUSION_HIDE_RECIPE = IFRegistry.INSTANCE.simple("infusion_hide", ForgeRegistries.Keys.RECIPE_SERIALIZERS, () -> new SimpleCraftingRecipeSerializer<>(InfusionHideRecipe::new));
 
 	static void bootstrap()
 	{
+		IFRegistry.INSTANCE.addDataGenerator(ProviderType.RECIPE, provider -> {
+			SpecialRecipeBuilder.special(INFUSION_CLEANSE_RECIPE.get()).save(provider, INFUSION_CLEANSE_RECIPE.getId().toString());
+			SpecialRecipeBuilder.special(INFUSION_HIDE_RECIPE.get()).save(provider, INFUSION_HIDE_RECIPE.getId().toString());
+		}).addDataGenerator(ProviderType.ITEM_TAGS, provider -> provider
+				.tag(InfusedFoods.INFUSION_HIDER)
+				// TODO: registrate needs a PR to make use of IntrinsicTagProviders correctly
+				.add(TagEntry.element(
+						BuiltInRegistries.ITEM.getKey(Items.FERMENTED_SPIDER_EYE)
+				))
+		);
 	}
 
 	private static String buildNbtPath(String... paths)
