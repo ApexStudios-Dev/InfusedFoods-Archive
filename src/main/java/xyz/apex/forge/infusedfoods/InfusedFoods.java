@@ -9,11 +9,13 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,6 +28,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import xyz.apex.forge.apexcore.lib.util.EventBusHelper;
 import xyz.apex.forge.commonality.Mods;
+import xyz.apex.forge.commonality.tags.ItemTags;
 import xyz.apex.forge.commonality.trust.TrustManager;
 import xyz.apex.forge.infusedfoods.client.renderer.model.InfusionStationModel;
 import xyz.apex.forge.infusedfoods.init.IFRegistry;
@@ -39,6 +42,11 @@ import static xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntit
 @Mod(Mods.INFUSED_FOODS)
 public final class InfusedFoods
 {
+	public static final TagKey<Item> BUCKETS_MILK = ItemTags.forgeTag("buckets/milk");
+	public static final TagKey<Item> BOTTLES_MILK = ItemTags.forgeTag("bottles/milk");
+	public static final TagKey<Item> INFUSION_HIDER = ItemTags.tag(Mods.INFUSED_FOODS, "infusion_hider");
+	private static final String NBT_HIDE_EFFECTS = "ApexHidePotionEffects";
+
 	public InfusedFoods()
 	{
 		TrustManager.throwIfUntrusted(Mods.INFUSED_FOODS);
@@ -156,6 +164,23 @@ public final class InfusedFoods
 		}
 	}
 
+	public static void setPotionEffectsVisible(ItemStack stack, boolean visible)
+	{
+		var tag = stack.getOrCreateTag();
+		if(tag.getBoolean(NBT_HIDE_EFFECTS) == visible) return;
+
+		tag.putBoolean(NBT_HIDE_EFFECTS, visible);
+		if(!visible && tag.contains(NBT_HIDE_EFFECTS)) tag.remove(NBT_HIDE_EFFECTS);
+
+		stack.setTag(tag);
+	}
+
+	public static boolean arePotionEffectsHidden(ItemStack stack)
+	{
+		var tag = stack.getTag();
+		return tag != null && tag.contains(NBT_HIDE_EFFECTS, Tag.TAG_BYTE) && tag.getBoolean(NBT_HIDE_EFFECTS);
+	}
+
 	private static final class Client
 	{
 		private Client()
@@ -171,6 +196,7 @@ public final class InfusedFoods
 
 			if(isValidFood(stack))
 			{
+				if(arePotionEffectsHidden(stack)) return;
 				var effects = PotionUtils.getCustomEffects(stack);
 
 				if(!effects.isEmpty())
