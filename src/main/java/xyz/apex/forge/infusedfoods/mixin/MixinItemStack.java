@@ -1,12 +1,10 @@
 package xyz.apex.forge.infusedfoods.mixin;
 
+import net.minecraft.world.item.ItemStack;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-
-import net.minecraft.world.item.ItemStack;
-
 import xyz.apex.forge.infusedfoods.InfusedFoods;
 
 @Mixin(ItemStack.class)

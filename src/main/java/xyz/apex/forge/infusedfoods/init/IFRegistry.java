@@ -1,10 +1,8 @@
 package xyz.apex.forge.infusedfoods.init;
 
-import org.apache.commons.lang3.Validate;
-
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.fml.ModLoadingContext;
-
+import org.apache.commons.lang3.Validate;
 import xyz.apex.forge.apexcore.registrate.BasicRegistrate;
 import xyz.apex.forge.commonality.Mods;
 

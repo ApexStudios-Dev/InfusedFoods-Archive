@@ -1,16 +1,14 @@
 package xyz.apex.forge.infusedfoods.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.Lazy;
-
 import xyz.apex.forge.commonality.SideOnly;
 import xyz.apex.forge.infusedfoods.block.entity.InfusionStationBlockEntity;
 import xyz.apex.forge.infusedfoods.client.renderer.InfusionStationBlockEntityRenderer;
@@ -40,7 +38,7 @@ public final class IFItemStackBlockEntityRenderer extends BlockEntityWithoutLeve
 	}
 
 	@Override
-	public void renderByItem(ItemStack stack, ItemTransforms.TransformType transformType, PoseStack pose, MultiBufferSource buffer, int light, int overlay)
+	public void renderByItem(ItemStack stack, ItemDisplayContext displayContext, PoseStack pose, MultiBufferSource buffer, int light, int overlay)
 	{
 		var partialTick = Minecraft.getInstance().getDeltaFrameTime();
 
@@ -49,10 +47,10 @@ public final class IFItemStackBlockEntityRenderer extends BlockEntityWithoutLeve
 			var stackTag = stack.getOrCreateTagElement(NBT_APEX);
 			var blockEntity = this.infusionStationBlockEntity.get();
 			blockEntity.deserializeData(stackTag);
-			infusionStationBlockEntityRenderer.renderForGUI(stack, blockEntity, partialTick, pose, buffer, light, overlay, transformType);
+			infusionStationBlockEntityRenderer.renderForGUI(stack, blockEntity, partialTick, pose, buffer, light, overlay, displayContext);
 		}
 		else
-			super.renderByItem(stack, transformType, pose, buffer, light, overlay);
+			super.renderByItem(stack, displayContext, pose, buffer, light, overlay);
 	}
 
 	public static BlockEntityWithoutLevelRenderer getInstance()

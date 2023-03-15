@@ -1,5 +1,6 @@
 package xyz.apex.forge.infusedfoods.item.crafting;
 
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
@@ -12,7 +13,6 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
-
 import xyz.apex.forge.commonality.tags.FluidTags;
 import xyz.apex.forge.infusedfoods.InfusedFoods;
 import xyz.apex.forge.infusedfoods.init.IFElements;
@@ -51,7 +51,7 @@ public final class InfusionCleanseRecipe extends CustomRecipe
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer container)
+    public ItemStack assemble(CraftingContainer container, RegistryAccess registryAccess)
     {
         var milk = ItemStack.EMPTY;
         var food = ItemStack.EMPTY;

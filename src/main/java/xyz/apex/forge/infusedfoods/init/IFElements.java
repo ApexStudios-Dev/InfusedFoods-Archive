@@ -3,9 +3,7 @@ package xyz.apex.forge.infusedfoods.init;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.RegistryEntry;
-
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -13,6 +11,7 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagEntry;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.block.SoundType;
@@ -26,7 +25,6 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.registries.ForgeRegistries;
-
 import xyz.apex.forge.apexcore.registrate.entry.BlockEntityEntry;
 import xyz.apex.forge.apexcore.registrate.entry.BlockEntry;
 import xyz.apex.forge.apexcore.registrate.entry.ItemEntry;
@@ -113,42 +111,42 @@ public final class IFElements
 							provider.getBuilder(id.getNamespace() + ":item/" + id.getPath())
 						        .parent(builtInEntity)
 								.transforms()
-									.transform(ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND)
+									.transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND)
 										.rotation(0F, 0F, 0F)
 										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
 									.end()
-									.transform(ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND)
+									.transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND)
 										.rotation(0F, 0F, 0F)
 										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
 									.end()
-									.transform(ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND)
+									.transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND)
 										.rotation(0F, 0F, 0F)
 										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
 									.end()
-									.transform(ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND)
+									.transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND)
 										.rotation(0F, 0F, 0F)
 										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
 									.end()
-									.transform(ItemTransforms.TransformType.HEAD)
+									.transform(ItemDisplayContext.HEAD)
 										.rotation(0F, 0F, 0F)
 										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
 									.end()
-									.transform(ItemTransforms.TransformType.GROUND)
+									.transform(ItemDisplayContext.GROUND)
 										.rotation(0F, 0F, 0F)
 										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
 									.end()
-									.transform(ItemTransforms.TransformType.FIXED)
+									.transform(ItemDisplayContext.FIXED)
 										.rotation(0F, 0F, 0F)
 										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
 									.end()
-									.transform(ItemTransforms.TransformType.GUI)
+									.transform(ItemDisplayContext.GUI)
 										.rotation(0F, 0F, 0F)
 										.translation(0F, 0F, 0F)
 										.scale(1F, 1F, 1F)
