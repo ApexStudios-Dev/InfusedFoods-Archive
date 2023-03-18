@@ -178,7 +178,7 @@ public final class IFElements
 			SpecialRecipeBuilder.special(INFUSION_CLEANSE_RECIPE.get()).save(provider, INFUSION_CLEANSE_RECIPE.getId().toString());
 			SpecialRecipeBuilder.special(INFUSION_HIDE_RECIPE.get()).save(provider, INFUSION_HIDE_RECIPE.getId().toString());
 		}).addDataGenerator(ProviderType.ITEM_TAGS, provider -> provider
-				.tag(InfusedFoods.INFUSION_HIDER)
+				.addTag(InfusedFoods.INFUSION_HIDER)
 				// TODO: registrate needs a PR to make use of IntrinsicTagProviders correctly
 				.add(TagEntry.element(
 						BuiltInRegistries.ITEM.getKey(Items.FERMENTED_SPIDER_EYE)
