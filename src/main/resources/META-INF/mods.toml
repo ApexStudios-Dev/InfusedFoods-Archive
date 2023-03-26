@@ -48,11 +48,11 @@ issueTrackerURL="https://discord.apexstudios.dev/"
 	[dependencies.infusedfoods.custom.mc-publish]
 		modrinth="apexcore"
 		curseforge="apexcore"
-[[dependencies.infusedfoods]]
-	modId="jei"
-	mandatory=false
-	versionRange="[13.0.0.0,)"
-	ordering="AFTER"
-	side="BOTH"
-	[dependencies.infusedfoods.custom.mc-publish]
-		curseforge="jei"
+#[[dependencies.infusedfoods]]
+#	modId="jei"
+#	mandatory=false
+#	versionRange="[13.0.0.0,)"
+#	ordering="AFTER"
+#	side="BOTH"
+#	[dependencies.infusedfoods.custom.mc-publish]
+#		curseforge="jei"
