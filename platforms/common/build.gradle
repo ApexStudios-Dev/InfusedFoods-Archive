@@ -5,6 +5,7 @@ loom {
         accessWidenerPath = getRootProject().file("${AW_FILE}")
     }
 
+    enableTransitiveAccessWideners = true
     mixin.defaultRefmapName = "${MOD_ID}.refmap.json"
 }
 
@@ -29,6 +30,8 @@ dependencies {
             }
         }
     })
+
+    modImplementation "net.fabricmc:fabric-loader:${FABRIC_LOADER_VERSION}"
 
     compileOnly "org.spongepowered:mixin:${MIXIN_VERSION}"
 

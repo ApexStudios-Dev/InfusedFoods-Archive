@@ -54,7 +54,11 @@
     ],
     "license": "${MOD_LICENSE}",
     "environment": "*",
-    "mixins": [ ],
+    "mixins": [
+        "${MOD_ID}.mixins.json",
+        "${MOD_ID}-common.mixins.json"
+    ],
+    "accessWidener": "infusedfoods.accesswidener",
     "entrypoints": {
         "main": [
             "xyz.apex.minecraft.infusedfoods.fabric.entrypoint.InfusedFoodsModInitializer"
