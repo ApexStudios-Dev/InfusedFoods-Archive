@@ -5,7 +5,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import org.joml.Math;
 import xyz.apex.minecraft.apexcore.common.lib.PhysicalSide;
 import xyz.apex.minecraft.apexcore.common.lib.SideOnly;
@@ -15,6 +17,7 @@ import xyz.apex.minecraft.infusedfoods.common.InfusionHelper;
 import xyz.apex.minecraft.infusedfoods.common.block.entity.InfusionStationBlockEntity;
 import xyz.apex.minecraft.infusedfoods.common.menu.InfusionStationMenu;
 
+import java.util.Collections;
 import java.util.Optional;
 
 @SideOnly(PhysicalSide.CLIENT)
@@ -79,7 +82,7 @@ public final class InfusionStationMenuScreen extends SimpleContainerMenuScreen<I
             if(effect != null)
             {
                 var tooltip = Lists.<Component>newArrayList();
-                InfusedFoods.appendPotionEffectTooltips(effect, menu.getEffectAmplifier(), menu.getEffectDuration(), tooltip);
+                PotionUtils.addPotionTooltip(Collections.singletonList(new MobEffectInstance(effect, menu.getEffectDuration(), menu.getEffectAmplifier())), tooltip, 1F);
                 graphics.renderTooltip(font, tooltip, Optional.empty(), mouseX, mouseY);
             }
         }

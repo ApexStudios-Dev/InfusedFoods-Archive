@@ -3,14 +3,11 @@ package xyz.apex.minecraft.infusedfoods.common.block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -32,8 +29,6 @@ import xyz.apex.minecraft.apexcore.common.lib.helper.VoxelShapeHelper;
 import xyz.apex.minecraft.apexcore.common.lib.hook.MenuHooks;
 import xyz.apex.minecraft.infusedfoods.common.InfusedFoods;
 import xyz.apex.minecraft.infusedfoods.common.block.entity.InfusionStationBlockEntity;
-
-import java.util.List;
 
 public final class InfusionStationBlock extends BaseBlockComponentHolder
 {
@@ -119,12 +114,6 @@ public final class InfusionStationBlock extends BaseBlockComponentHolder
     public boolean isPathfindable(BlockState blockState, BlockGetter level, BlockPos pos, PathComputationType type)
     {
         return false;
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flag)
-    {
-        InfusedFoods.appendPotionEffectTooltips(stack, tooltip);
     }
 
     @Nullable

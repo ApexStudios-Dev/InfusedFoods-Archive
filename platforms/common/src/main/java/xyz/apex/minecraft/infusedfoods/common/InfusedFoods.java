@@ -1,24 +1,17 @@
 package xyz.apex.minecraft.infusedfoods.common;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.Mth;
-import net.minecraft.util.StringUtil;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
@@ -26,7 +19,6 @@ import net.minecraft.world.level.block.SoundType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
 import xyz.apex.lib.Services;
 import xyz.apex.minecraft.apexcore.common.lib.helper.TagHelper;
 import xyz.apex.minecraft.apexcore.common.lib.hook.CreativeModeTabHooks;
@@ -41,8 +33,6 @@ import xyz.apex.minecraft.infusedfoods.common.client.screen.InfusionStationMenuS
 import xyz.apex.minecraft.infusedfoods.common.menu.InfusionStationMenu;
 import xyz.apex.minecraft.infusedfoods.common.recipe.InfusionCleansingRecipe;
 import xyz.apex.minecraft.infusedfoods.common.recipe.InfusionHideRecipe;
-
-import java.util.List;
 
 @ApiStatus.NonExtendable
 public interface InfusedFoods
@@ -73,72 +63,6 @@ public interface InfusedFoods
 
         REGISTRAR.register();
         registerGenerators();
-    }
-
-    static void appendPotionEffectTooltips(@Nullable MobEffect effect, int amplifier, int duration, List<Component> tooltips)
-    {
-        if(effect == null)
-            return;
-
-        var potionName = effect.getDisplayName().copy();
-
-        if(amplifier > 0)
-            potionName = Component.translatable("potion.withAmplifier", potionName, Component.translatable("potion.potency.%d".formatted(amplifier)));
-
-        if(duration > 20)
-        {
-            var i = Mth.floor((float) duration);
-            var durationFormat = StringUtil.formatTickDuration(i);
-            potionName = Component.translatable("potion.withDuration", potionName, durationFormat);
-        }
-
-        tooltips.add(potionName.withStyle(effect.getCategory().getTooltipFormatting()));
-
-        var modifiers = effect.getAttributeModifiers();
-
-        if(modifiers.isEmpty())
-            return;
-
-        tooltips.add(Component.empty());
-        tooltips.add(Component.translatable("potion.whenDrank").withStyle(ChatFormatting.DARK_PURPLE));
-
-        modifiers.forEach((attribute, modifier) -> {
-            var mod = new AttributeModifier(modifier.getName(), effect.getAttributeModifierValue(amplifier, modifier), modifier.getOperation());
-
-            var d0 = mod.getAmount();
-            double d1;
-
-            var operation = mod.getOperation();
-
-            if(operation != AttributeModifier.Operation.MULTIPLY_BASE && operation != AttributeModifier.Operation.MULTIPLY_TOTAL)
-                d1 = d0;
-            else
-                d1 = d0 * 100D;
-
-            if(d0 > 0D)
-                tooltips.add(Component.translatable("attribute.modifier.plus.%d".formatted(operation.toValue()), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(attribute.getDescriptionId())).withStyle(ChatFormatting.BLUE));
-            else if(d0 < 0D)
-            {
-                d1 = d1 * -1D;
-                tooltips.add(Component.translatable("attribute.modifier.take.%d".formatted(operation.toValue()), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(attribute.getDescriptionId())).withStyle(ChatFormatting.BLUE));
-            }
-        });
-    }
-
-    static void appendPotionEffectTooltips(ItemStack stack, List<Component> tooltips)
-    {
-        var blockEntityTag = BlockItem.getBlockEntityData(stack);
-
-        if(blockEntityTag != null && blockEntityTag.contains(InfusionStationBlockEntity.NBT_INFUSION_FLUID, Tag.TAG_COMPOUND))
-        {
-            var fluidTag = blockEntityTag.getCompound(InfusionStationBlockEntity.NBT_INFUSION_FLUID);
-            var effect = BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation(fluidTag.getString(InfusionStationBlockEntity.NBT_EFFECT)));
-            // var effectAmount = fluidTag.getInt(InfusionStationBlockEntity.NBT_AMOUNT);
-            var effectDuration = fluidTag.getInt(InfusionStationBlockEntity.NBT_DURATION);
-            var effectAmplifier = fluidTag.getInt(InfusionStationBlockEntity.NBT_AMPLIFIER);
-
-            appendPotionEffectTooltips(effect, effectAmplifier, effectDuration, tooltips);
-        }
     }
 
     static void onFinishItemUse(LivingEntity entity, ItemStack stack)
