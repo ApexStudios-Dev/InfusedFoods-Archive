@@ -55,6 +55,7 @@ public final class InfusionStationBlockEntity extends BaseBlockEntityComponentHo
     public static final int DATA_SLOT_COUNT = 6;
 
     public static final int INFUSION_TIME = 400;
+    public static final int BLAZE_FUEL = 20;
 
     private int infuseTime = 0;
     private int blazeFuel = 0;
@@ -142,6 +143,8 @@ public final class InfusionStationBlockEntity extends BaseBlockEntityComponentHo
 
     private boolean canInfuse()
     {
+        if(blazeFuel <= 0)
+            return false;
         if(effect == null || effectAmount < 0)
             return false;
 
@@ -228,11 +231,16 @@ public final class InfusionStationBlockEntity extends BaseBlockEntityComponentHo
 
         var changed = false;
 
-        if(blockEntity.blazeFuel <= 0 && !blaze.isEmpty())
+        if(blockEntity.blazeFuel <= 0)
         {
-            blockEntity.blazeFuel = 20;
-            blaze.shrink(1);
-            changed = true;
+            blockEntity.blazeFuel = 0;
+
+            if(!blaze.isEmpty())
+            {
+                blockEntity.blazeFuel = BLAZE_FUEL;
+                blaze.shrink(1);
+                changed = true;
+            }
         }
 
         if(blockEntity.infuseTime > 0 && !blockEntity.canInfuse())

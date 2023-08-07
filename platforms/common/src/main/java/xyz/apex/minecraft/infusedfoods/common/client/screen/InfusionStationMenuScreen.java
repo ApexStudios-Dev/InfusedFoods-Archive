@@ -23,15 +23,37 @@ import java.util.Optional;
 @SideOnly(PhysicalSide.CLIENT)
 public final class InfusionStationMenuScreen extends SimpleContainerMenuScreen<InfusionStationMenu>
 {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(InfusedFoods.ID, "textures/gui/container/infusion_station.png");
-    private static final int TANK_WIDTH = 16;
-    private static final int TANK_HEIGHT = 40;
+    public static final ResourceLocation SPRITE_PROGRESS_EMPTY = new ResourceLocation(InfusedFoods.ID, "container/infusion_station/brew_progress_empty");
+    public static final ResourceLocation SPRITE_PROGRESS_FILL = new ResourceLocation(InfusedFoods.ID, "container/infusion_station/brew_progress_fill");
+    public static final ResourceLocation SPRITE_BUBBLES_EMPTY = new ResourceLocation(InfusedFoods.ID, "container/infusion_station/bubbles_empty");
+    public static final ResourceLocation SPRITE_BUBBLES_FILL = new ResourceLocation(InfusedFoods.ID, "container/infusion_station/bubbles_fill");
+    public static final ResourceLocation SPRITE_FLUID = new ResourceLocation(InfusedFoods.ID, "container/infusion_station/fluid");
+    public static final ResourceLocation SPRITE_FUEL_EMPTY = new ResourceLocation(InfusedFoods.ID, "container/infusion_station/fuel_empty");
+    public static final ResourceLocation SPRITE_FUEL_FILL = new ResourceLocation(InfusedFoods.ID, "container/infusion_station/fuel_fill");
+    public static final ResourceLocation SPRITE_FUEL_PIPE = new ResourceLocation(InfusedFoods.ID, "container/infusion_station/fuel_pipe");
+    public static final ResourceLocation SPRITE_TANK = new ResourceLocation(InfusedFoods.ID, "container/infusion_station/tank");
+    public static final ResourceLocation SPRITE_TANK_OVERLAY = new ResourceLocation(InfusedFoods.ID, "container/infusion_station/tank_overlay");
+    private static final int TANK_WIDTH = 18;
+    private static final int TANK_HEIGHT = 42;
+    private static final int FLUID_WIDTH = TANK_WIDTH - 2;
+    private static final int FLUID_HEIGHT = 8;
+    private static final int FUEL_PIPE_WIDTH = 26;
+    private static final int FUEL_PIPE_HEIGHT = 62;
+    private static final int ARROW_WIDTH = 24;
+    private static final int ARROW_HEIGHT = 8;
+    private static final int FUEL_WIDTH = 18;
+    private static final int FUEL_HEIGHT = 6;
+    private static final int BUBBLE_WIDTH = 11;
+    private static final int BUBBLE_HEIGHT = 28;
     public static final int TANK_OFFSET = 8;
 
     public InfusionStationMenuScreen(InfusionStationMenu menu, Inventory playerInventory, Component displayName)
     {
-        super(menu, playerInventory, displayName, TEXTURE);
+        super(menu, playerInventory, displayName);
     }
+
+    private int tankX;
+    private int tankY;
 
     @Override
     protected void init()
@@ -42,40 +64,47 @@ public final class InfusionStationMenuScreen extends SimpleContainerMenuScreen<I
         super.init();
 
         titleLabelX = imageWidth - font.width(title) - 8;
+
+        tankX = leftPos + TANK_OFFSET;
+        tankY = topPos + TANK_OFFSET;
     }
 
     @Override
-    protected void renderFg(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    public void renderFg(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        renderSlotBackground(graphics, InfusionStationBlockEntity.SLOT_BLAZE, 240, 0);
-        renderSlotBackground(graphics, InfusionStationBlockEntity.SLOT_POTION, 240, 16);
-        renderSlotBackground(graphics, InfusionStationBlockEntity.SLOT_FOOD, 240, 33);
+        super.renderFg(graphics, mouseX, mouseY, partialTick);
+
+        renderArrow(graphics);
+        renderBubbles(graphics);
+        renderFuel(graphics);
 
         renderInfusionFluid(graphics);
-        renderInfusionProgress(graphics);
-        renderInfusionFluidTankOverlay(graphics, mouseX, mouseY);
+        graphics.blitSprite(SPRITE_TANK_OVERLAY, tankX, tankY, TANK_WIDTH, TANK_HEIGHT);
     }
 
-    private void renderSlotBackground(GuiGraphics graphics, int slotIndex, int backgroundX, int backgroundY)
+    @Override
+    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY)
     {
-        var slot = menu.getContainerSlot(slotIndex);
+        super.renderBg(graphics, partialTick, mouseX, mouseY);
 
-        if(slot == null || slot.hasItem())
+        graphics.blitSprite(SPRITE_FUEL_PIPE, leftPos + (imageWidth / 2) - 25, topPos + 15, FUEL_PIPE_WIDTH, FUEL_PIPE_HEIGHT);
+        graphics.blitSprite(SPRITE_TANK, tankX - 1, tankY - 1, TANK_WIDTH, TANK_HEIGHT);
+    }
+
+    @Override
+    protected void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY)
+    {
+        super.renderTooltip(graphics, mouseX, mouseY);
+
+        if(menu.getCarried().isEmpty() && hoveredSlot != null && hoveredSlot.hasItem())
             return;
 
-        graphics.blit(TEXTURE, leftPos + slot.x, topPos + slot.y, backgroundX, backgroundY, 16, 16, 256, 256);
-    }
+        var tankHoverMaxX = tankX + TANK_WIDTH - 2;
+        var tankHoverMaxY = tankY + TANK_HEIGHT - 2;
 
-    private void renderInfusionFluidTankOverlay(GuiGraphics graphics, int mouseX, int mouseY)
-    {
-        var tankX = leftPos + TANK_OFFSET;
-        var tankY = topPos + TANK_OFFSET;
-
-        graphics.blit(TEXTURE, tankX, tankY, 176, 41, TANK_WIDTH, TANK_HEIGHT, 256, 256);
-
-        if(mouseX >= tankX && mouseY >= tankY && mouseX < tankX + TANK_WIDTH && mouseY < tankY + TANK_HEIGHT)
+        if(mouseX >= tankX && mouseY >= tankY && mouseX < tankHoverMaxX && mouseY < tankHoverMaxY)
         {
-            graphics.fillGradient(tankX, tankY, tankX + TANK_WIDTH, tankY + TANK_HEIGHT, 0x80FFFFFF, 0x80FFFFFF);
+            graphics.fillGradient(tankX, tankY, tankHoverMaxX, tankHoverMaxY, 0x80FFFFFF, 0x80FFFFFF);
 
             var effect = menu.getEffect();
 
@@ -95,13 +124,7 @@ public final class InfusionStationMenuScreen extends SimpleContainerMenuScreen<I
         if(effect == null)
             return;
 
-        var tankX = leftPos + TANK_OFFSET;
-        var tankY = topPos + TANK_HEIGHT;
-
-        var fluidWidth = TANK_WIDTH;
-        var fluidHeight = 8;
-
-        var fluidAmount = menu.getEffectAmount();
+        var effectAmount = menu.getEffectAmount();
         var color = InfusionHelper.getEffectColor(effect, menu.getEffectAmplifier());
 
         var r = FastColor.ARGB32.red(color) / 255F;
@@ -109,34 +132,49 @@ public final class InfusionStationMenuScreen extends SimpleContainerMenuScreen<I
         var b = FastColor.ARGB32.blue(color) / 255F;
 
         graphics.setColor(r, g, b, 1F);
-
-        for(var i = 0; i < fluidAmount; i++)
-        {
-            graphics.blit(TEXTURE, tankX, tankY - (i * fluidHeight), 176, 33, fluidWidth, fluidHeight, 256, 256);
-        }
-
+        graphics.blitSprite(SPRITE_FLUID, tankX, tankY + TANK_HEIGHT - FLUID_HEIGHT * effectAmount - 2, FLUID_WIDTH, FLUID_HEIGHT * effectAmount);
         graphics.setColor(1F, 1F, 1F, 1F);
     }
 
-    private void renderInfusionProgress(GuiGraphics graphics)
+    private void renderArrow(GuiGraphics graphics)
     {
-        var blazeFuel = menu.getBlazeFuel();
+        var arrowX = leftPos + 109;
+        var arrowY = topPos + 26;
+
+        graphics.blitSprite(SPRITE_PROGRESS_EMPTY, arrowX, arrowY, ARROW_WIDTH, ARROW_HEIGHT);
+
         var infuseTime = menu.getInfuseTime();
+        var infuseProgress = infuseTime <= 0 ? 0 : (int) (ARROW_WIDTH * (1F - (float) infuseTime / 400F));
 
-        var blazeWidth = Math.clamp(0, 18, (18 * blazeFuel + 20 - 1) / 20);
+        if(infuseProgress > 0)
+            graphics.blitSprite(SPRITE_PROGRESS_FILL, ARROW_WIDTH, ARROW_HEIGHT, 0, 0, arrowX, arrowY, infuseProgress, ARROW_HEIGHT);
+    }
 
-        if(blazeWidth > 0)
-            graphics.blit(TEXTURE, leftPos + 89, topPos + 72, 176, 29, blazeWidth, 4, 256, 256);
+    private void renderFuel(GuiGraphics graphics)
+    {
+        var fuelX = leftPos + 89;
+        var fuelY = topPos + 72;
 
-        if(infuseTime > 0)
-        {
-            var j1 = (int) (28F * (1F - (float) infuseTime / 400F));
+        graphics.blitSprite(SPRITE_FUEL_EMPTY, fuelX, fuelY, FUEL_WIDTH, FUEL_HEIGHT);
 
-            if(j1 > 0)
-            {
-                graphics.blit(TEXTURE, leftPos + 106, topPos + 25, 189, 0, j1, 9, 256, 256);
-                graphics.blit(TEXTURE, leftPos + 92, topPos + 42 + 29 - j1, 176, 29 - j1, 13, j1, 256, 256);
-            }
-        }
+        var fuel = menu.getBlazeFuel();
+        var fuelProgress = fuel <= 0 ? 0 : Math.clamp(0, FUEL_WIDTH, (FUEL_WIDTH * fuel + InfusionStationBlockEntity.BLAZE_FUEL - 1) / InfusionStationBlockEntity.BLAZE_FUEL);
+
+        if(fuelProgress > 0)
+            graphics.blitSprite(SPRITE_FUEL_FILL, FUEL_WIDTH, FUEL_HEIGHT, 0, 0, fuelX, fuelY, fuelProgress, FUEL_HEIGHT);
+    }
+
+    private void renderBubbles(GuiGraphics graphics)
+    {
+        var bubbleX = leftPos + 92;
+        var bubbleY = topPos + 43;
+
+        graphics.blitSprite(SPRITE_BUBBLES_EMPTY, bubbleX, bubbleY, BUBBLE_WIDTH, BUBBLE_HEIGHT);
+
+        var infuseTime = menu.getInfuseTime();
+        var infuseProgress = infuseTime <= 0 ? 0 : (int) (BUBBLE_HEIGHT * (1F - (float) infuseTime / 400F));
+
+        if(infuseProgress > 0)
+            graphics.blitSprite(SPRITE_BUBBLES_FILL, BUBBLE_WIDTH, BUBBLE_HEIGHT, 0, BUBBLE_HEIGHT - infuseProgress, bubbleX, bubbleY + BUBBLE_HEIGHT - infuseProgress, BUBBLE_WIDTH, infuseProgress);
     }
 }

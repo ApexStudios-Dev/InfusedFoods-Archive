@@ -1,15 +1,14 @@
 package xyz.apex.minecraft.infusedfoods.common.menu;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.DataSlot;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
@@ -23,6 +22,10 @@ import xyz.apex.minecraft.infusedfoods.common.block.entity.InfusionStationBlockE
 
 public final class InfusionStationMenu extends SimpleContainerMenu
 {
+    private static final ResourceLocation SPRITE_SLOT_BLAZE = new ResourceLocation(InfusedFoods.ID, "item/empty_slot_blaze");
+    private static final ResourceLocation SPRITE_SLOT_FOOD = new ResourceLocation(InfusedFoods.ID, "item/empty_slot_food");
+    private static final ResourceLocation SPRITE_SLOT_POTION = new ResourceLocation(InfusedFoods.ID, "item/empty_slot_potion");
+
     private final DataSlot effectAmount;
     private final DataSlot effectAmplifier;
     private final DataSlot effectDuration;
@@ -114,6 +117,12 @@ public final class InfusionStationMenu extends SimpleContainerMenu
         {
             return PotionUtils.getPotion(stack).getEffects().size() == 1;
         }
+
+        @Override
+        public Pair<ResourceLocation, ResourceLocation> getNoItemIcon()
+        {
+            return Pair.of(InventoryMenu.BLOCK_ATLAS, SPRITE_SLOT_POTION);
+        }
     }
 
     private final class BlazeSlot extends EnhancedSlot
@@ -127,6 +136,12 @@ public final class InfusionStationMenu extends SimpleContainerMenu
         public boolean mayPlace(ItemStack stack)
         {
             return stack.is(Items.BLAZE_POWDER);
+        }
+
+        @Override
+        public Pair<ResourceLocation, ResourceLocation> getNoItemIcon()
+        {
+            return Pair.of(InventoryMenu.BLOCK_ATLAS, SPRITE_SLOT_BLAZE);
         }
     }
 
@@ -144,6 +159,12 @@ public final class InfusionStationMenu extends SimpleContainerMenu
                 return false;
 
             return !InfusionHelper.isInfusedFood(stack);
+        }
+
+        @Override
+        public Pair<ResourceLocation, ResourceLocation> getNoItemIcon()
+        {
+            return Pair.of(InventoryMenu.BLOCK_ATLAS, SPRITE_SLOT_FOOD);
         }
     }
 
