@@ -63,7 +63,7 @@ pipeline {
 
                 withCredentials([string(credentialsId: 'covers1624_maven_password', variable: 'MAVEN_PASSWORD')]) {
                     echo 'Publishing to Maven'
-                    sh './gradlew publish'
+                    sh './gradlew publishReleasePublicationToReleasesRepository'
                 }
 
                 // withCredentials([string(credentialsId: 'discord_changelog_webhook_test', variable: 'DISCORD_CHANGELOG_WEBHOOK_URL')]) {
@@ -75,6 +75,11 @@ pipeline {
         }
         stage('Finalization') {
             steps {
+                withCredentials([string(credentialsId: 'covers1624_maven_password', variable: 'MAVEN_PASSWORD')]) {
+                    echo 'Publishing to Maven'
+                    sh './gradlew publishSnapshotPublicationToSnapshotsRepository'
+                }
+
                 echo 'Archiving Jars'
                 archiveArtifacts artifacts: 'jars/*.jar', fingerprint: true, followSymlinks: false, onlyIfSuccessful: true
             }

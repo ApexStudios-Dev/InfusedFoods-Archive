@@ -37,7 +37,11 @@ dependencies {
     compileOnly 'org.ow2.asm:asm-commons:9.5'
 
     if(rootProject.hasProperty('APEXCORE_DEV_VERSION')) {
-        modImplementation "xyz.apex.minecraft.apexcore:apexcore-common:${APEXCORE_DEV_VERSION}+${MINECRAFT_VERSION}"
+        if(APEXCORE_DEV_VERSION.endsWithIgnoreCase('-SNAPSHOT')) {
+            modImplementation "xyz.apex.minecraft.apexcore:apexcore-common:${APEXCORE_DEV_VERSION}"
+        } else {
+            modImplementation "xyz.apex.minecraft.apexcore:apexcore-common:${APEXCORE_DEV_VERSION}+${MINECRAFT_VERSION}"
+        }
     } else {
         modImplementation "xyz.apex.minecraft.apexcore:apexcore-common:${APEXCORE_VERSION}+${MINECRAFT_VERSION}"
     }
@@ -61,7 +65,14 @@ collectJars {
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        release(MavenPublication) {
+            loom.disableDeprecatedPomGeneration(it)
+
+            artifact jar
+            artifact sourcesJar
+        }
+
+        snapshot(MavenPublication) {
             loom.disableDeprecatedPomGeneration(it)
 
             artifact jar

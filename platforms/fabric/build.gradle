@@ -71,8 +71,13 @@ dependencies {
     }
 
     if(rootProject.hasProperty('APEXCORE_DEV_VERSION')) {
-        modImplementation "xyz.apex.minecraft.apexcore:apexcore-fabric:${APEXCORE_DEV_VERSION}+${MINECRAFT_VERSION}"
-        include "xyz.apex.minecraft.apexcore:apexcore-fabric:${APEXCORE_DEV_VERSION}+${MINECRAFT_VERSION}"
+        if(APEXCORE_DEV_VERSION.endsWithIgnoreCase('-SNAPSHOT')) {
+            modImplementation "xyz.apex.minecraft.apexcore:apexcore-fabric:${APEXCORE_DEV_VERSION}"
+            include "xyz.apex.minecraft.apexcore:apexcore-fabric:${APEXCORE_DEV_VERSION}"
+        } else {
+            modImplementation "xyz.apex.minecraft.apexcore:apexcore-fabric:${APEXCORE_DEV_VERSION}+${MINECRAFT_VERSION}"
+            include "xyz.apex.minecraft.apexcore:apexcore-fabric:${APEXCORE_DEV_VERSION}+${MINECRAFT_VERSION}"
+        }
     } else {
         modImplementation "xyz.apex.minecraft.apexcore:apexcore-fabric:${APEXCORE_VERSION}+${MINECRAFT_VERSION}"
         include "xyz.apex.minecraft.apexcore:apexcore-fabric:${APEXCORE_VERSION}+${MINECRAFT_VERSION}"
@@ -102,7 +107,14 @@ collectJars {
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        release(MavenPublication) {
+            loom.disableDeprecatedPomGeneration(it)
+
+            artifact remapJar
+            artifact sourcesJar
+        }
+
+        snapshot(MavenPublication) {
             loom.disableDeprecatedPomGeneration(it)
 
             artifact remapJar
@@ -114,7 +126,7 @@ publishing {
 publishMods {
     file = remapJar.archiveFile
     changelog = rootProject.file('changelogs/changelog.md').exists() ? rootProject.file('changelogs/changelog.md').getText('UTF-8') : ''
-    type = me.modmuss50.mpp.ReleaseType.ALPHA
+    type = me.modmuss50.mpp.ReleaseType.of("${MOD_RELEASE_TYPE}")
     maxRetries = 5
     version = "${MOD_FULL_VERSION}"
     displayName = "[Fabric] ${MOD_NAME} - ${MOD_FULL_VERSION}+${MINECRAFT_VERSION}"

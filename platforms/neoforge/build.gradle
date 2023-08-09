@@ -95,10 +95,18 @@ dependencies {
     compileOnly project(path: ':common', configuration: 'namedElements')
 
     if(rootProject.hasProperty('APEXCORE_DEV_VERSION')) {
-        implementation fg.deobf("xyz.apex.minecraft.apexcore:apexcore-neoforge:${APEXCORE_DEV_VERSION}+${MINECRAFT_VERSION}")
+        if(APEXCORE_DEV_VERSION.endsWithIgnoreCase('-SNAPSHOT')) {
+            implementation fg.deobf("xyz.apex.minecraft.apexcore:apexcore-neoforge:${APEXCORE_DEV_VERSION}")
 
-        jarJar("xyz.apex.minecraft.apexcore:apexcore-neoforge:${APEXCORE_DEV_VERSION}+${MINECRAFT_VERSION}") {
-            jarJar.ranged(it, "${APEXCORE_VERSION_RANGE}")
+            jarJar("xyz.apex.minecraft.apexcore:apexcore-neoforge:${APEXCORE_DEV_VERSION}") {
+                jarJar.ranged(it, "${APEXCORE_VERSION_RANGE}")
+            }
+        } else {
+            implementation fg.deobf("xyz.apex.minecraft.apexcore:apexcore-neoforge:${APEXCORE_DEV_VERSION}+${MINECRAFT_VERSION}")
+
+            jarJar("xyz.apex.minecraft.apexcore:apexcore-neoforge:${APEXCORE_DEV_VERSION}+${MINECRAFT_VERSION}") {
+                jarJar.ranged(it, "${APEXCORE_VERSION_RANGE}")
+            }
         }
     } else {
         implementation fg.deobf("xyz.apex.minecraft.apexcore:apexcore-neoforge:${APEXCORE_VERSION}+${MINECRAFT_VERSION}")
@@ -152,7 +160,13 @@ collectJars {
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        release(MavenPublication) {
+            artifact jar
+            artifact sourcesJar
+            artifact tasks.jarJar
+        }
+
+        snapshot(MavenPublication) {
             artifact jar
             artifact sourcesJar
             artifact tasks.jarJar
@@ -163,7 +177,7 @@ publishing {
 publishMods {
     file = remapJar.archiveFile
     changelog = rootProject.file('changelogs/changelog.md').exists() ? rootProject.file('changelogs/changelog.md').getText('UTF-8') : ''
-    type = me.modmuss50.mpp.ReleaseType.ALPHA
+    type = me.modmuss50.mpp.ReleaseType.of("${MOD_RELEASE_TYPE}")
     maxRetries = 5
     version = "${MOD_FULL_VERSION}"
     displayName = "[NeoForge] ${MOD_NAME} - ${MOD_FULL_VERSION}+${MINECRAFT_VERSION}"
