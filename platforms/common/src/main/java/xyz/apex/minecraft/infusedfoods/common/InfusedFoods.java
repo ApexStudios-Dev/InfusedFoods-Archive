@@ -6,7 +6,6 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -146,10 +145,7 @@ public interface InfusedFoods
 
                 .item()
                     .renderer(() -> InfusionStationItemStackRenderer::new)
-                    .model((provider, lookup, entry) -> provider.withParent(
-                            entry.getRegistryName().withPrefix("item/"),
-                            provider.existingModel(new ResourceLocation("builtin/entity"))
-                    ))
+                    .model((provider, lookup, entry) -> provider.entity(entry.value()))
                 .build()
         .register();
     }

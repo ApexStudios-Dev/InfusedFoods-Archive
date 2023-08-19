@@ -58,21 +58,18 @@ public final class InfusionStationMenuScreen extends SimpleContainerMenuScreen<I
     @Override
     protected void init()
     {
-        imageWidth = 176;
-        imageHeight = 166;
-
         super.init();
 
-        titleLabelX = imageWidth - font.width(title) - 8;
+        titleLabelX = imageWidth - font.width(title) - 10;
 
         tankX = leftPos + TANK_OFFSET;
         tankY = topPos + TANK_OFFSET;
     }
 
     @Override
-    public void renderFg(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        super.renderFg(graphics, mouseX, mouseY, partialTick);
+        super.render(graphics, mouseX, mouseY, partialTick);
 
         renderArrow(graphics);
         renderBubbles(graphics);

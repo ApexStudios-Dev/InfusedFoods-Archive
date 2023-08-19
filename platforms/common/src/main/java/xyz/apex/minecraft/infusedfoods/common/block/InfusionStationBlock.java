@@ -4,10 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -16,7 +12,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -24,9 +19,7 @@ import xyz.apex.minecraft.apexcore.common.lib.component.block.BaseBlockComponent
 import xyz.apex.minecraft.apexcore.common.lib.component.block.BlockComponentRegistrar;
 import xyz.apex.minecraft.apexcore.common.lib.component.block.types.BlockComponentTypes;
 import xyz.apex.minecraft.apexcore.common.lib.component.block.types.HorizontalFacingBlockComponent;
-import xyz.apex.minecraft.apexcore.common.lib.helper.InteractionResultHelper;
 import xyz.apex.minecraft.apexcore.common.lib.helper.VoxelShapeHelper;
-import xyz.apex.minecraft.apexcore.common.lib.hook.MenuHooks;
 import xyz.apex.minecraft.infusedfoods.common.InfusedFoods;
 import xyz.apex.minecraft.infusedfoods.common.block.entity.InfusionStationBlockEntity;
 
@@ -47,35 +40,11 @@ public final class InfusionStationBlock extends BaseBlockComponentHolder
     }
 
     @Override
-    public InteractionResult use(BlockState blockState, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit)
-    {
-        var result = super.use(blockState, level, pos, player, hand, hit);
-
-        if(result.consumesAction())
-            return result;
-
-        var blockEntity = InfusedFoods.BLOCK_ENTITY.getBlockEntity(level, pos);
-
-        if(blockEntity != null)
-        {
-            MenuHooks.get().openMenu(player, blockEntity.getDisplayName(), blockEntity, buffer -> buffer.writeBlockPos(pos));
-        }
-
-        return InteractionResultHelper.BlockUse.succeedAndSwingArmBothSides(level.isClientSide);
-    }
-
-    @Nullable
-    @Override
-    public MenuProvider getMenuProvider(BlockState blockState, Level level, BlockPos pos)
-    {
-        return InfusedFoods.BLOCK_ENTITY.getBlockEntityOptional(level, pos).map(blockEntity -> MenuHooks.get().createMenuProvider(blockEntity.getDisplayName(), blockEntity, buffer -> buffer.writeBlockPos(pos))).orElse(null);
-    }
-
-    @Override
     protected void registerComponents(BlockComponentRegistrar registrar)
     {
         registrar.register(BlockComponentTypes.HORIZONTAL_FACING);
         registrar.register(BlockComponentTypes.WATERLOGGED);
+        registrar.register(BlockComponentTypes.MENU_PROVIDER, component -> component.withExtraData((level, pos, blockState, buffer) -> buffer.writeBlockPos(pos)));
     }
 
     @Override
