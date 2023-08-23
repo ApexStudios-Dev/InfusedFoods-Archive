@@ -2,13 +2,11 @@ package xyz.apex.minecraft.infusedfoods.common;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import org.jetbrains.annotations.ApiStatus;
 import xyz.apex.lib.Services;
 import xyz.apex.minecraft.apexcore.common.lib.PhysicalSide;
 import xyz.apex.minecraft.apexcore.common.lib.SideOnly;
-import xyz.apex.minecraft.apexcore.common.lib.event.types.ClientEvents;
 import xyz.apex.minecraft.apexcore.common.lib.hook.RendererHooks;
 import xyz.apex.minecraft.infusedfoods.common.client.renderer.model.InfusionStationModel;
 
@@ -22,11 +20,10 @@ public interface InfusedFoodsClient
 
     default void bootstrap()
     {
-        ClientEvents.TOOLTIP.addListener(this::onItemTooltip);
         RendererHooks.get().registerModelLayerDefinition(InfusionStationModel.LAYER_LOCATION, InfusionStationModel::createDefinition);
     }
 
-    private void onItemTooltip(ItemStack stack, TooltipFlag flag, List<Component> tooltips)
+    default void onItemTooltip(ItemStack stack, List<Component> tooltips)
     {
         if(InfusionHelper.isInfusedFood(stack))
         {
