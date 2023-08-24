@@ -13,7 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import org.jetbrains.annotations.Nullable;
-import xyz.apex.minecraft.apexcore.common.lib.component.block.entity.types.BlockEntityComponentTypes;
 import xyz.apex.minecraft.apexcore.common.lib.menu.EnhancedSlot;
 import xyz.apex.minecraft.apexcore.common.lib.menu.SimpleContainerMenu;
 import xyz.apex.minecraft.infusedfoods.common.InfusedFoods;
@@ -100,7 +99,7 @@ public final class InfusionStationMenu extends SimpleContainerMenu
     {
         var pos = buffer.readBlockPos();
         var blockEntity = InfusedFoods.BLOCK_ENTITY.getBlockEntityOptional(inventory.player.level(), pos).orElseThrow();
-        var container = blockEntity.getRequiredComponent(BlockEntityComponentTypes.INVENTORY);
+        var container = blockEntity.getRequiredComponent(InfusionStationBlockEntity.COMPONENT_TYPE);
 
         return new InfusionStationMenu(menuType, syncId, inventory, container, blockEntity);
     }

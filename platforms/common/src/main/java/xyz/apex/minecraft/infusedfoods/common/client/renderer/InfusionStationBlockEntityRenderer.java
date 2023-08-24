@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.item.ItemDisplayContext;
 import xyz.apex.minecraft.apexcore.common.lib.PhysicalSide;
 import xyz.apex.minecraft.apexcore.common.lib.SideOnly;
-import xyz.apex.minecraft.apexcore.common.lib.component.block.entity.types.BlockEntityComponentTypes;
 import xyz.apex.minecraft.apexcore.common.lib.component.block.types.HorizontalFacingBlockComponent;
 import xyz.apex.minecraft.infusedfoods.common.InfusionHelper;
 import xyz.apex.minecraft.infusedfoods.common.block.entity.InfusionStationBlockEntity;
@@ -45,7 +44,7 @@ public final class InfusionStationBlockEntityRenderer implements BlockEntityRend
         }
         else
         {
-            var container = blockEntity.getRequiredComponent(BlockEntityComponentTypes.INVENTORY);
+            var container = blockEntity.getRequiredComponent(InfusionStationBlockEntity.COMPONENT_TYPE);
             var effect = blockEntity.getEffect();
             var effectAmount = blockEntity.getEffectAmount();
 
@@ -78,7 +77,7 @@ public final class InfusionStationBlockEntityRenderer implements BlockEntityRend
             pose.translate(-.275D, -1.2D, 0D);
             pose.scale(.4F, .4F, .4F);
 
-            var food = blockEntity.getRequiredComponent(BlockEntityComponentTypes.INVENTORY).getItem(InfusionStationBlockEntity.SLOT_FOOD);
+            var food = blockEntity.getRequiredComponent(InfusionStationBlockEntity.COMPONENT_TYPE).getItem(InfusionStationBlockEntity.SLOT_FOOD);
             var client = Minecraft.getInstance();
             var seed = client.player == null ? 0 : client.player.getId();
             var itemModel = client.getItemRenderer().getModel(food, client.level, client.player, seed);

@@ -1,6 +1,7 @@
 package xyz.apex.minecraft.infusedfoods.common.block.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -10,7 +11,6 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
@@ -18,8 +18,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
-import xyz.apex.minecraft.apexcore.common.lib.component.block.entity.BaseBlockEntityComponentHolder;
-import xyz.apex.minecraft.apexcore.common.lib.component.block.entity.BlockEntityComponentRegistrar;
+import xyz.apex.minecraft.apexcore.common.lib.component.block.entity.*;
 import xyz.apex.minecraft.apexcore.common.lib.component.block.entity.types.BlockEntityComponentTypes;
 import xyz.apex.minecraft.infusedfoods.common.InfusedFoods;
 import xyz.apex.minecraft.infusedfoods.common.InfusionHelper;
@@ -28,8 +27,10 @@ import xyz.apex.minecraft.infusedfoods.common.menu.InfusionStationMenu;
 import java.util.Collections;
 import java.util.Objects;
 
-public final class InfusionStationBlockEntity extends BaseBlockEntityComponentHolder implements ContainerData
+public final class InfusionStationBlockEntity extends BaseBlockEntityComponentHolder
 {
+    public static final BlockEntityComponentType<InventoryBlockEntityComponent> COMPONENT_TYPE = BlockEntityComponentType.register(InfusedFoods.ID, "inventory", InventoryBlockEntityComponent::new);
+
     public static final String NBT_INFUSION_TIME = "InfusionTime";
     public static final String NBT_BLAZE_FUEL = "BlazeFuel";
 
@@ -57,13 +58,6 @@ public final class InfusionStationBlockEntity extends BaseBlockEntityComponentHo
     public static final int INFUSION_TIME = 400;
     public static final int BLAZE_FUEL = 20;
 
-    private int infuseTime = 0;
-    private int blazeFuel = 0;
-    @Nullable private MobEffect effect;
-    private int effectAmount;
-    private int effectDuration;
-    private int effectAmplifier;
-
     public InfusionStationBlockEntity(BlockEntityType<? extends BaseBlockEntityComponentHolder> blockEntityType, BlockPos pos, BlockState blockState)
     {
         super(blockEntityType, pos, blockState);
@@ -72,83 +66,37 @@ public final class InfusionStationBlockEntity extends BaseBlockEntityComponentHo
     @Nullable
     public MobEffect getEffect()
     {
-        return effect;
+        return getRequiredComponent(COMPONENT_TYPE).effect;
     }
 
     public int getEffectAmount()
     {
-        return effectAmount;
+        return getRequiredComponent(COMPONENT_TYPE).effectAmount;
     }
 
     public int getEffectAmplifier()
     {
-        return effectAmplifier;
-    }
-
-    @Override
-    protected void serializeInto(CompoundTag tag, boolean forNetwork)
-    {
-        super.serializeInto(tag, forNetwork);
-
-        if(infuseTime > 0)
-            tag.putInt(NBT_INFUSION_TIME, infuseTime);
-        if(blazeFuel > 0)
-            tag.putInt(NBT_BLAZE_FUEL, blazeFuel);
-
-        if(effect != null)
-        {
-            var fluidTag = new CompoundTag();
-            var effectRegistryName = Objects.requireNonNull(BuiltInRegistries.MOB_EFFECT.getKey(effect)).toString();
-            fluidTag.putString(NBT_EFFECT, effectRegistryName);
-            fluidTag.putInt(NBT_AMOUNT, effectAmount);
-            fluidTag.putInt(NBT_DURATION, effectDuration);
-            fluidTag.putInt(NBT_AMPLIFIER, effectAmplifier);
-            tag.put(NBT_INFUSION_FLUID, fluidTag);
-        }
-    }
-
-    @Override
-    protected void deserializeFrom(CompoundTag tag, boolean fromNetwork)
-    {
-        infuseTime = 0;
-        blazeFuel = 0;
-        effect = null;
-        effectAmount = 0;
-        effectAmplifier = 0;
-        effectDuration = 0;
-
-        if(tag.contains(NBT_INFUSION_TIME, Tag.TAG_ANY_NUMERIC))
-            infuseTime = tag.getInt(NBT_INFUSION_TIME);
-        if(tag.contains(NBT_BLAZE_FUEL, Tag.TAG_ANY_NUMERIC))
-            blazeFuel = tag.getInt(NBT_BLAZE_FUEL);
-
-        if(tag.contains(NBT_INFUSION_FLUID, Tag.TAG_COMPOUND))
-        {
-            var fluidTag = tag.getCompound(NBT_INFUSION_FLUID);
-            effect = BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation(fluidTag.getString(NBT_EFFECT)));
-            effectAmount = fluidTag.getInt(NBT_AMOUNT);
-            effectDuration = fluidTag.getInt(NBT_DURATION);
-            effectAmplifier = fluidTag.getInt(NBT_AMPLIFIER);
-        }
-
-        super.deserializeFrom(tag, fromNetwork);
+        return getRequiredComponent(COMPONENT_TYPE).effectAmplifier;
     }
 
     @Override
     protected void registerComponents(BlockEntityComponentRegistrar registrar)
     {
-        registrar.register(BlockEntityComponentTypes.INVENTORY, component -> component.setSlotCount(SLOT_COUNT));
+        registrar.register(COMPONENT_TYPE);
+        registrar.register(BlockEntityComponentTypes.LOOT_TABLE);
+        registrar.register(BlockEntityComponentTypes.LOCK_CODE);
         registrar.register(BlockEntityComponentTypes.NAMEABLE);
     }
 
     private boolean canInfuse()
     {
-        if(blazeFuel <= 0)
+        var container = getRequiredComponent(COMPONENT_TYPE);
+
+        if(container.blazeFuel <= 0)
             return false;
-        if(effect == null || effectAmount < 0)
+        if(container.effect == null || container.effectAmount < 0)
             return false;
 
-        var container = getRequiredComponent(BlockEntityComponentTypes.INVENTORY);
         var food = container.getItem(SLOT_FOOD);
 
         if(!InfusionHelper.isValidFood(food))
@@ -169,11 +117,11 @@ public final class InfusionStationBlockEntity extends BaseBlockEntityComponentHo
         {
             var effectInstance = resultEffects.get(0);
 
-            if(!Objects.equals(effect, effectInstance.getEffect()))
+            if(!Objects.equals(container.effect, effectInstance.getEffect()))
                 return false;
-            if(effectDuration != effectInstance.getDuration())
+            if(container.effectDuration != effectInstance.getDuration())
                 return false;
-            if(effectAmplifier != effectInstance.getAmplifier())
+            if(container.effectAmplifier != effectInstance.getAmplifier())
                 return false;
         }
 
@@ -181,48 +129,14 @@ public final class InfusionStationBlockEntity extends BaseBlockEntityComponentHo
     }
 
     @Override
-    public int get(int index)
-    {
-        return switch(index) {
-            case DATA_SLOT_EFFECT_AMOUNT -> effectAmount;
-            case DATA_SLOT_EFFECT_AMPLIFIER -> effectAmplifier;
-            case DATA_SLOT_EFFECT_DURATION -> effectDuration;
-            case DATA_SLOT_EFFECT_ID -> BuiltInRegistries.MOB_EFFECT.getId(effect);
-            case DATA_SLOT_INFUSE_TIME -> infuseTime;
-            case DATA_SLOT_BLAZE_FUEL -> blazeFuel;
-            default -> -1;
-        };
-    }
-
-    @Override
-    public void set(int index, int value)
-    {
-        switch(index)
-        {
-            case DATA_SLOT_EFFECT_AMOUNT -> effectAmount = value;
-            case DATA_SLOT_EFFECT_AMPLIFIER -> effectAmplifier = value;
-            case DATA_SLOT_EFFECT_DURATION -> effectDuration = value;
-            case DATA_SLOT_EFFECT_ID -> effect = value >= 0 ? BuiltInRegistries.MOB_EFFECT.getHolder(value).map(Holder.Reference::value).orElse(null) : null;
-            case DATA_SLOT_INFUSE_TIME -> infuseTime = value;
-            case DATA_SLOT_BLAZE_FUEL -> blazeFuel = value;
-        }
-    }
-
-    @Override
-    public int getCount()
-    {
-        return DATA_SLOT_COUNT;
-    }
-
-    @Override
     protected AbstractContainerMenu createMenu(int syncId, Inventory inventory)
     {
-        return new InfusionStationMenu(InfusedFoods.MENU.value(), syncId, inventory, getRequiredComponent(BlockEntityComponentTypes.INVENTORY), this);
+        return new InfusionStationMenu(InfusedFoods.MENU.value(), syncId, inventory, this, this);
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState blockState, InfusionStationBlockEntity blockEntity)
     {
-        var container = blockEntity.getRequiredComponent(BlockEntityComponentTypes.INVENTORY);
+        var container = blockEntity.getRequiredComponent(COMPONENT_TYPE);
         var potion = container.getItem(SLOT_POTION);
         var food = container.getItem(SLOT_FOOD);
         var blaze = container.getItem(SLOT_BLAZE);
@@ -231,45 +145,45 @@ public final class InfusionStationBlockEntity extends BaseBlockEntityComponentHo
 
         var changed = false;
 
-        if(blockEntity.blazeFuel <= 0)
+        if(container.blazeFuel <= 0)
         {
-            blockEntity.blazeFuel = 0;
+            container.blazeFuel = 0;
 
             if(!blaze.isEmpty())
             {
-                blockEntity.blazeFuel = BLAZE_FUEL;
+                container.blazeFuel = BLAZE_FUEL;
                 blaze.shrink(1);
                 changed = true;
             }
         }
 
-        if(blockEntity.infuseTime > 0 && !blockEntity.canInfuse())
+        if(container.infuseTime > 0 && !blockEntity.canInfuse())
         {
-            blockEntity.infuseTime = 0;
+            container.infuseTime = 0;
             changed = true;
         }
 
-        if(blockEntity.effect != null && blockEntity.effectAmount > 0)
+        if(container.effect != null && container.effectAmount > 0)
         {
             if(blockEntity.canInfuse())
             {
-                if(blockEntity.infuseTime == 0)
+                if(container.infuseTime == 0)
                 {
-                    blockEntity.blazeFuel--;
-                    blockEntity.infuseTime = INFUSION_TIME;
+                    container.blazeFuel--;
+                    container.infuseTime = INFUSION_TIME;
                     changed = true;
                 }
                 else
                 {
-                    blockEntity.infuseTime--;
+                    container.infuseTime--;
 
-                    if(blockEntity.infuseTime == 0)
+                    if(container.infuseTime == 0)
                     {
                         if(result.isEmpty())
                         {
                             var foodToUse = food.split(1).copy();
                             foodToUse.setCount(1);
-                            PotionUtils.setCustomEffects(foodToUse, Collections.singletonList(new MobEffectInstance(blockEntity.effect, blockEntity.effectDuration, blockEntity.effectAmplifier)));
+                            PotionUtils.setCustomEffects(foodToUse, Collections.singletonList(new MobEffectInstance(container.effect, container.effectDuration, container.effectAmplifier)));
                             container.setItem(SLOT_RESULT, foodToUse);
                         }
                         else
@@ -278,7 +192,7 @@ public final class InfusionStationBlockEntity extends BaseBlockEntityComponentHo
                             result.grow(1);
                         }
 
-                        blockEntity.effectAmount--;
+                        container.effectAmount--;
                     }
 
                     changed = true;
@@ -296,10 +210,10 @@ public final class InfusionStationBlockEntity extends BaseBlockEntityComponentHo
                 {
                     var effectInstance = effects.get(0);
 
-                    blockEntity.effect = effectInstance.getEffect();
-                    blockEntity.effectAmplifier = effectInstance.getAmplifier();
-                    blockEntity.effectDuration = effectInstance.getDuration();
-                    blockEntity.effectAmount = 5;
+                    container.effect = effectInstance.getEffect();
+                    container.effectAmplifier = effectInstance.getAmplifier();
+                    container.effectDuration = effectInstance.getDuration();
+                    container.effectAmount = 5;
 
                     container.setItem(SLOT_POTION, ItemStack.EMPTY);
 
@@ -308,7 +222,7 @@ public final class InfusionStationBlockEntity extends BaseBlockEntityComponentHo
                     else
                         bottle.grow(1);
 
-                    blockEntity.infuseTime = 0;
+                    container.infuseTime = 0;
                     changed = true;
                 }
             }
@@ -316,5 +230,116 @@ public final class InfusionStationBlockEntity extends BaseBlockEntityComponentHo
 
         if(changed)
             blockEntity.setChanged();
+    }
+
+    public static final class InventoryBlockEntityComponent extends BaseContainerBlockEntityComponent<InventoryBlockEntityComponent>
+    {
+        private int infuseTime = 0;
+        private int blazeFuel = 0;
+        @Nullable private MobEffect effect;
+        private int effectAmount;
+        private int effectDuration;
+        private int effectAmplifier;
+
+        private InventoryBlockEntityComponent(BlockEntityComponentHolder componentHolder)
+        {
+            super(componentHolder);
+
+            super.withSlotCount(SLOT_COUNT);
+        }
+
+        @Override
+        public InventoryBlockEntityComponent withSlotCount(int slotCount)
+        {
+            return this;
+        }
+
+        @Override
+        public void serializeInto(CompoundTag tag, boolean forNetwork)
+        {
+            super.serializeInto(tag, forNetwork);
+
+            if(infuseTime > 0)
+                tag.putInt(NBT_INFUSION_TIME, infuseTime);
+            if(blazeFuel > 0)
+                tag.putInt(NBT_BLAZE_FUEL, blazeFuel);
+
+            if(effect != null)
+            {
+                var fluidTag = new CompoundTag();
+                var effectRegistryName = Objects.requireNonNull(BuiltInRegistries.MOB_EFFECT.getKey(effect)).toString();
+                fluidTag.putString(NBT_EFFECT, effectRegistryName);
+                fluidTag.putInt(NBT_AMOUNT, effectAmount);
+                fluidTag.putInt(NBT_DURATION, effectDuration);
+                fluidTag.putInt(NBT_AMPLIFIER, effectAmplifier);
+                tag.put(NBT_INFUSION_FLUID, fluidTag);
+            }
+        }
+
+        @Override
+        public void deserializeFrom(CompoundTag tag, boolean fromNetwork)
+        {
+            super.deserializeFrom(tag, fromNetwork);
+
+            infuseTime = 0;
+            blazeFuel = 0;
+            effect = null;
+            effectAmount = 0;
+            effectAmplifier = 0;
+            effectDuration = 0;
+
+            if(tag.contains(NBT_INFUSION_TIME, Tag.TAG_ANY_NUMERIC))
+                infuseTime = tag.getInt(NBT_INFUSION_TIME);
+            if(tag.contains(NBT_BLAZE_FUEL, Tag.TAG_ANY_NUMERIC))
+                blazeFuel = tag.getInt(NBT_BLAZE_FUEL);
+
+            if(tag.contains(NBT_INFUSION_FLUID, Tag.TAG_COMPOUND))
+            {
+                var fluidTag = tag.getCompound(NBT_INFUSION_FLUID);
+                effect = BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation(fluidTag.getString(NBT_EFFECT)));
+                effectAmount = fluidTag.getInt(NBT_AMOUNT);
+                effectDuration = fluidTag.getInt(NBT_DURATION);
+                effectAmplifier = fluidTag.getInt(NBT_AMPLIFIER);
+            }
+        }
+
+        @Override
+        public int[] getSlotsForFace(Direction side)
+        {
+            return super.getSlotsForFace(side);
+        }
+
+        @Override
+        public int get(int index)
+        {
+            return switch(index) {
+                case DATA_SLOT_EFFECT_AMOUNT -> effectAmount;
+                case DATA_SLOT_EFFECT_AMPLIFIER -> effectAmplifier;
+                case DATA_SLOT_EFFECT_DURATION -> effectDuration;
+                case DATA_SLOT_EFFECT_ID -> BuiltInRegistries.MOB_EFFECT.getId(effect);
+                case DATA_SLOT_INFUSE_TIME -> infuseTime;
+                case DATA_SLOT_BLAZE_FUEL -> blazeFuel;
+                default -> -1;
+            };
+        }
+
+        @Override
+        public void set(int index, int value)
+        {
+            switch(index) {
+                case DATA_SLOT_EFFECT_AMOUNT -> effectAmount = value;
+                case DATA_SLOT_EFFECT_AMPLIFIER -> effectAmplifier = value;
+                case DATA_SLOT_EFFECT_DURATION -> effectDuration = value;
+                case DATA_SLOT_EFFECT_ID -> effect = value >= 0 ? BuiltInRegistries.MOB_EFFECT.getHolder(value).map(Holder.Reference::value).orElse(null) : null;
+                case DATA_SLOT_INFUSE_TIME -> infuseTime = value;
+                case DATA_SLOT_BLAZE_FUEL -> blazeFuel = value;
+            }
+        }
+
+        @Override
+        public int getCount()
+        {
+            return DATA_SLOT_COUNT;
+        }
     }
 }
