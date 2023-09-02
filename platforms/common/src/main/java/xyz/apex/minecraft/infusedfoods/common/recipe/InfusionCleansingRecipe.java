@@ -1,7 +1,6 @@
 package xyz.apex.minecraft.infusedfoods.common.recipe;
 
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionUtils;
@@ -14,9 +13,9 @@ import xyz.apex.minecraft.infusedfoods.common.InfusionHelper;
 
 public final class InfusionCleansingRecipe extends CustomRecipe
 {
-    public InfusionCleansingRecipe(ResourceLocation resourceLocation, CraftingBookCategory craftingBookCategory)
+    public InfusionCleansingRecipe(CraftingBookCategory craftingBookCategory)
     {
-        super(resourceLocation, craftingBookCategory);
+        super(craftingBookCategory);
     }
 
     @Override

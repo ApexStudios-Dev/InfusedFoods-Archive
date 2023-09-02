@@ -1,7 +1,6 @@
 package xyz.apex.minecraft.infusedfoods.common.recipe;
 
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -13,9 +12,9 @@ import xyz.apex.minecraft.infusedfoods.common.InfusionHelper;
 
 public final class InfusionHideRecipe extends CustomRecipe
 {
-    public InfusionHideRecipe(ResourceLocation resourceLocation, CraftingBookCategory craftingBookCategory)
+    public InfusionHideRecipe(CraftingBookCategory craftingBookCategory)
     {
-        super(resourceLocation, craftingBookCategory);
+        super(craftingBookCategory);
     }
 
     @Override

@@ -103,8 +103,8 @@ public interface InfusedFoods
         ProviderTypes.registerDefaultMcMetaGenerator(ID, Component.translatable(descriptionKey));
 
         ProviderTypes.RECIPES.addListener(ID, (provider, lookup) -> {
-            SpecialRecipeBuilder.special(INFUSION_CLEANSE_RECIPE.value()).save(provider::add, INFUSION_CLEANSE_RECIPE.getRegistryName().toString());
-            SpecialRecipeBuilder.special(INFUSION_HIDE_RECIPE.value()).save(provider::add, INFUSION_HIDE_RECIPE.getRegistryName().toString());
+            SpecialRecipeBuilder.special(INFUSION_CLEANSE_RECIPE.value()).save(provider, INFUSION_CLEANSE_RECIPE.getRegistryName().toString());
+            SpecialRecipeBuilder.special(INFUSION_HIDE_RECIPE.value()).save(provider, INFUSION_HIDE_RECIPE.getRegistryName().toString());
         });
 
         ProviderTypes.ITEM_TAGS.addListener(ID, (provider, lookup) -> {
@@ -134,7 +134,7 @@ public interface InfusedFoods
                         .pattern(" B ")
                         .pattern("SSS")
                         .unlockedBy("has_blaze_rod", provider.has(Items.BLAZE_ROD))
-                        .save(provider::add, entry.getRegistryName())
+                        .save(provider, entry.getRegistryName())
                 )
                 .tag(BlockTags.MINEABLE_WITH_PICKAXE)
                 .renderType(() -> RenderType::cutout)
