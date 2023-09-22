@@ -1,7 +1,7 @@
 @MethodsReturnNonnullByDefault
 @FieldsAreNonnullByDefault
 @ParametersAreNonnullByDefault
-package xyz.apex.minecraft.infusedfoods.neoforge;
+package xyz.apex.minecraft.infusedfoods.mcforge;
 
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
