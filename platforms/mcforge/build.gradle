@@ -197,7 +197,7 @@ publishMods {
         minecraftVersions.add("${MINECRAFT_VERSION}")
 
         embeds {
-            id = "${APEXCORE_CURSEFORGE_ID}"
+            slug = "${APEXCORE_CURSEFORGE_SLUG}"
         }
     }
 
@@ -207,7 +207,7 @@ publishMods {
         minecraftVersions.add("${MINECRAFT_VERSION}")
 
         embeds {
-            id = "${APEXCORE_CURSEFORGE_ID}"
+            slug = "${APEXCORE_MODRINTH_SLUG}"
         }
     }
 }
